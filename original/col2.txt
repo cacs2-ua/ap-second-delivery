@@ -1,0 +1,2580 @@
+CNN Architectures
+In this notebook, we are going to implement a state-of-the-art convolutional neural network. You can use PyTorch, Keras, or TensorFlow for this purpose. However, you should provide a summary of the created network at the end. You have to implement an architecture between AlexNet and VGG19 and another architecture between Resnet50 and Inception v1.
+
+
+Example of Summary
+
+
+
+#@title Example of Summary
+
+# print(model)
+
+VGG(
+  (features): Sequential(
+    (0): Conv2d(3, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (1): ReLU(inplace=True)
+    (2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (3): ReLU(inplace=True)
+    (4): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+    (5): Conv2d(64, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (6): ReLU(inplace=True)
+    (7): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (8): ReLU(inplace=True)
+    (9): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+    (10): Conv2d(128, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (11): ReLU(inplace=True)
+    (12): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (13): ReLU(inplace=True)
+    (14): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (15): ReLU(inplace=True)
+    (16): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (17): ReLU(inplace=True)
+    (18): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+    (19): Conv2d(256, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (20): ReLU(inplace=True)
+    (21): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (22): ReLU(inplace=True)
+    (23): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (24): ReLU(inplace=True)
+    (25): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (26): ReLU(inplace=True)
+    (27): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+    (28): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (29): ReLU(inplace=True)
+    (30): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (31): ReLU(inplace=True)
+    (32): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (33): ReLU(inplace=True)
+    (34): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (35): ReLU(inplace=True)
+    (36): MaxPool2d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(7, 7))
+  (classifier): Sequential(
+    (0): Linear(in_features=25088, out_features=4096, bias=True)
+    (1): ReLU(inplace=True)
+    (2): Dropout(p=0.5, inplace=False)
+    (3): Linear(in_features=4096, out_features=4096, bias=True)
+    (4): ReLU(inplace=True)
+    (5): Dropout(p=0.5, inplace=False)
+    (6): Linear(in_features=4096, out_features=1000, bias=True)
+  )
+)
+
+
+VGG19 Architecture
+
+
+AlexNet Architecture
+
+
+Resnet50 Architecture
+
+
+ResNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (relu): ReLU(inplace=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (3): Bottleneck(
+      (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (3): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (4): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (5): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=2048, out_features=1000, bias=True)
+)
+
+Inception v3 Architecture
+
+Inception3(
+  (Conv2d_1a_3x3): BasicConv2d(
+    (conv): Conv2d(3, 32, kernel_size=(3, 3), stride=(2, 2), bias=False)
+    (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (Conv2d_2a_3x3): BasicConv2d(
+    (conv): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), bias=False)
+    (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (Conv2d_2b_3x3): BasicConv2d(
+    (conv): Conv2d(32, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (maxpool1): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (Conv2d_3b_1x1): BasicConv2d(
+    (conv): Conv2d(64, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+    (bn): BatchNorm2d(80, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (Conv2d_4a_3x3): BasicConv2d(
+    (conv): Conv2d(80, 192, kernel_size=(3, 3), stride=(1, 1), bias=False)
+    (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (maxpool2): MaxPool2d(kernel_size=3, stride=2, padding=0, dilation=1, ceil_mode=False)
+  (Mixed_5b): InceptionA(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(192, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch5x5_1): BasicConv2d(
+      (conv): Conv2d(192, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(48, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch5x5_2): BasicConv2d(
+      (conv): Conv2d(48, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_1): BasicConv2d(
+      (conv): Conv2d(192, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_2): BasicConv2d(
+      (conv): Conv2d(64, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3): BasicConv2d(
+      (conv): Conv2d(96, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(192, 32, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(32, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_5c): InceptionA(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch5x5_1): BasicConv2d(
+      (conv): Conv2d(256, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(48, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch5x5_2): BasicConv2d(
+      (conv): Conv2d(48, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_1): BasicConv2d(
+      (conv): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_2): BasicConv2d(
+      (conv): Conv2d(64, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3): BasicConv2d(
+      (conv): Conv2d(96, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_5d): InceptionA(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(288, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch5x5_1): BasicConv2d(
+      (conv): Conv2d(288, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(48, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch5x5_2): BasicConv2d(
+      (conv): Conv2d(48, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_1): BasicConv2d(
+      (conv): Conv2d(288, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_2): BasicConv2d(
+      (conv): Conv2d(64, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3): BasicConv2d(
+      (conv): Conv2d(96, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(288, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_6a): InceptionB(
+    (branch3x3): BasicConv2d(
+      (conv): Conv2d(288, 384, kernel_size=(3, 3), stride=(2, 2), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_1): BasicConv2d(
+      (conv): Conv2d(288, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(64, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_2): BasicConv2d(
+      (conv): Conv2d(64, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3): BasicConv2d(
+      (conv): Conv2d(96, 96, kernel_size=(3, 3), stride=(2, 2), bias=False)
+      (bn): BatchNorm2d(96, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_6b): InceptionC(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_1): BasicConv2d(
+      (conv): Conv2d(768, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_2): BasicConv2d(
+      (conv): Conv2d(128, 128, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_3): BasicConv2d(
+      (conv): Conv2d(128, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_1): BasicConv2d(
+      (conv): Conv2d(768, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_2): BasicConv2d(
+      (conv): Conv2d(128, 128, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_3): BasicConv2d(
+      (conv): Conv2d(128, 128, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_4): BasicConv2d(
+      (conv): Conv2d(128, 128, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_5): BasicConv2d(
+      (conv): Conv2d(128, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_6c): InceptionC(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_1): BasicConv2d(
+      (conv): Conv2d(768, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_2): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_3): BasicConv2d(
+      (conv): Conv2d(160, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_1): BasicConv2d(
+      (conv): Conv2d(768, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_2): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_3): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_4): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_5): BasicConv2d(
+      (conv): Conv2d(160, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_6d): InceptionC(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_1): BasicConv2d(
+      (conv): Conv2d(768, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_2): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_3): BasicConv2d(
+      (conv): Conv2d(160, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_1): BasicConv2d(
+      (conv): Conv2d(768, 160, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_2): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_3): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_4): BasicConv2d(
+      (conv): Conv2d(160, 160, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(160, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_5): BasicConv2d(
+      (conv): Conv2d(160, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_6e): InceptionC(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_2): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7_3): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_2): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_3): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_4): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7dbl_5): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (AuxLogits): InceptionAux(
+    (conv0): BasicConv2d(
+      (conv): Conv2d(768, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(128, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (conv1): BasicConv2d(
+      (conv): Conv2d(128, 768, kernel_size=(5, 5), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(768, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (fc): Linear(in_features=768, out_features=1000, bias=True)
+  )
+  (Mixed_7a): InceptionD(
+    (branch3x3_1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_2): BasicConv2d(
+      (conv): Conv2d(192, 320, kernel_size=(3, 3), stride=(2, 2), bias=False)
+      (bn): BatchNorm2d(320, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7x3_1): BasicConv2d(
+      (conv): Conv2d(768, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7x3_2): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(1, 7), stride=(1, 1), padding=(0, 3), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7x3_3): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(7, 1), stride=(1, 1), padding=(3, 0), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch7x7x3_4): BasicConv2d(
+      (conv): Conv2d(192, 192, kernel_size=(3, 3), stride=(2, 2), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_7b): InceptionE(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(1280, 320, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(320, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_1): BasicConv2d(
+      (conv): Conv2d(1280, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_2a): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_2b): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_1): BasicConv2d(
+      (conv): Conv2d(1280, 448, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(448, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_2): BasicConv2d(
+      (conv): Conv2d(448, 384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3a): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3b): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(1280, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (Mixed_7c): InceptionE(
+    (branch1x1): BasicConv2d(
+      (conv): Conv2d(2048, 320, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(320, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_1): BasicConv2d(
+      (conv): Conv2d(2048, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_2a): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3_2b): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_1): BasicConv2d(
+      (conv): Conv2d(2048, 448, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(448, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_2): BasicConv2d(
+      (conv): Conv2d(448, 384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3a): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch3x3dbl_3b): BasicConv2d(
+      (conv): Conv2d(384, 384, kernel_size=(3, 1), stride=(1, 1), padding=(1, 0), bias=False)
+      (bn): BatchNorm2d(384, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (branch_pool): BasicConv2d(
+      (conv): Conv2d(2048, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn): BatchNorm2d(192, eps=0.001, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (dropout): Dropout(p=0.5, inplace=False)
+  (fc): Linear(in_features=2048, out_features=1000, bias=True)
+)
+
+First Implementation:
+
+# To-Do
+
+Second Implementation:
+
+# To-Do
+
+
+Auxiliary code to check the created model.
+
+
+from torchvision import models
+alexnet = models.alexnet(pretrained=True)
+vgg19 = models.vgg19(pretrained=True)
+resnet50 = models.resnet50(pretrained=True)
+inceptionv3 = models.inception_v3(pretrained=True)
+
+import io
+import sys
+
+def capture_model_print(model):
+    old_stdout = sys.stdout
+    sys.stdout = buffer = io.StringIO()
+    print(model)
+    sys.stdout = old_stdout
+    return buffer.getvalue()
+
+model = # Model
+custom_model = capture_model_print(model)
+pytorch_model = capture_model_print(vgg19)
+
+if custom_model == pytorch_model:
+    print("The models have identical structures.")
+else:
+    print("The models structures differ.")
+
+    
+Dataset and Training
+Now we are going to train one of the implemented networks. For this, we will use the CIFAR-10 dataset. This dataset is composed of 10 classes but we will only use 3.
+
+
+
+Imports
+
+
+
+#@title Imports
+import glob
+import random
+import numpy as np
+import pandas as pd
+
+import torch
+from torch import nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Subset
+
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+#@title Dataset
+
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # Normalize to [-1, 1] range
+])
+
+def filter_indices_with_limits(dataset, class_sample_limits):
+    indices = []
+    class_counts = {cls: 0 for cls in class_sample_limits.keys()}
+    for i in range(len(dataset)):
+        _, label = dataset[i]
+        class_name = dataset.classes[label]
+        if class_name in class_sample_limits:
+            if class_counts[class_name] < class_sample_limits[class_name]:
+                indices.append(i)
+                class_counts[class_name] += 1
+            if all(class_counts[cls] >= limit for cls, limit in class_sample_limits.items()):
+                break
+    return indices
+
+
+trainset = datasets.CIFAR10(root='CIFAR10_data/', train=True, download=True, transform=transform)
+testset = datasets.CIFAR10(root='CIFAR10_data/', train=False, download=True, transform=transform)
+
+train_limits = {'airplane': 500, 'automobile': 500, 'bird': 50}
+test_limits = {'airplane': 100, 'automobile': 100, 'bird': 100}
+
+train_indices = filter_indices_with_limits(trainset, train_limits)
+trainset_filtered = Subset(trainset, train_indices)
+
+test_indices = filter_indices_with_limits(testset, test_limits)
+testset_filtered = Subset(testset, test_indices)
+
+trainloader = DataLoader(trainset_filtered, batch_size=64, shuffle=True)
+testloader = DataLoader(testset_filtered, batch_size=64, shuffle=True)
+
+
+Data Augmentation
+As you can see, we have a dataset that is not balanced. The bird class only has 50 samples, while airplane and automobile have 500. In this section, you will need to implement a data augmentation technique to solve this problem in our dataset.
+
+You can find examples of different techniques at the following link:
+
+Getting started with transforms v2
+Transforming and augmenting images
+
+
+
+Table of Contents
+Getting started with transforms v2
+Note
+
+Try on Colab or go to the end to download the full example code.
+
+This example illustrates all of what you need to know to get started with the new torchvision.transforms.v2 API. We’ll cover simple tasks like image classification, and more advanced ones like object detection / segmentation.
+
+First, a bit of setup
+
+from pathlib import Path
+import torch
+import matplotlib.pyplot as plt
+plt.rcParams["savefig.bbox"] = 'tight'
+
+from torchvision.transforms import v2
+from torchvision.io import decode_image
+
+torch.manual_seed(1)
+
+# If you're trying to run that on Colab, you can download the assets and the
+# helpers from https://github.com/pytorch/vision/tree/main/gallery/
+from helpers import plot
+img = decode_image(str(Path('../assets') / 'astronaut.jpg'))
+print(f"{type(img) = }, {img.dtype = }, {img.shape = }")
+type(img) = <class 'torch.Tensor'>, img.dtype = torch.uint8, img.shape = torch.Size([3, 512, 512])
+The basics
+The Torchvision transforms behave like a regular torch.nn.Module (in fact, most of them are): instantiate a transform, pass an input, get a transformed output:
+
+transform = v2.RandomCrop(size=(224, 224))
+out = transform(img)
+
+plot([img, out])
+plot transforms getting started
+I just want to do image classification
+If you just care about image classification, things are very simple. A basic classification pipeline may look like this:
+
+transforms = v2.Compose([
+    v2.RandomResizedCrop(size=(224, 224), antialias=True),
+    v2.RandomHorizontalFlip(p=0.5),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+out = transforms(img)
+
+plot([img, out])
+plot transforms getting started
+Such transformation pipeline is typically passed as the transform argument to the Datasets, e.g. ImageNet(..., transform=transforms).
+
+That’s pretty much all there is. From there, read through our main docs to learn more about recommended practices and conventions, or explore more examples e.g. how to use augmentation transforms like CutMix and MixUp.
+
+Note
+
+If you’re already relying on the torchvision.transforms v1 API, we recommend to switch to the new v2 transforms. It’s very easy: the v2 transforms are fully compatible with the v1 API, so you only need to change the import!
+
+Videos, boxes, masks, keypoints
+The Torchvision transforms in the torchvision.transforms.v2 namespace support tasks beyond image classification: they can also transform rotated or axis-aligned bounding boxes, segmentation / detection masks, videos, and keypoints.
+
+Let’s briefly look at a detection example with bounding boxes.
+
+from torchvision import tv_tensors  # we'll describe this a bit later, bare with us
+
+boxes = tv_tensors.BoundingBoxes(
+    [
+        [15, 10, 370, 510],
+        [275, 340, 510, 510],
+        [130, 345, 210, 425]
+    ],
+    format="XYXY", canvas_size=img.shape[-2:])
+
+transforms = v2.Compose([
+    v2.RandomResizedCrop(size=(224, 224), antialias=True),
+    v2.RandomPhotometricDistort(p=1),
+    v2.RandomHorizontalFlip(p=1),
+])
+out_img, out_boxes = transforms(img, boxes)
+print(type(boxes), type(out_boxes))
+
+plot([(img, boxes), (out_img, out_boxes)])
+plot transforms getting started
+<class 'torchvision.tv_tensors._bounding_boxes.BoundingBoxes'> <class 'torchvision.tv_tensors._bounding_boxes.BoundingBoxes'>
+The example above focuses on object detection. But if we had masks (torchvision.tv_tensors.Mask) for object segmentation or semantic segmentation, or videos (torchvision.tv_tensors.Video), we could have passed them to the transforms in exactly the same way.
+
+By now you likely have a few questions: what are these TVTensors, how do we use them, and what is the expected input/output of those transforms? We’ll answer these in the next sections.
+
+What are TVTensors?
+TVTensors are torch.Tensor subclasses. The available TVTensors are Image, BoundingBoxes, Mask, Video, and KeyPoints.
+
+TVTensors look and feel just like regular tensors - they are tensors. Everything that is supported on a plain torch.Tensor like .sum() or any torch.* operator will also work on a TVTensor:
+
+img_dp = tv_tensors.Image(torch.randint(0, 256, (3, 256, 256), dtype=torch.uint8))
+
+print(f"{isinstance(img_dp, torch.Tensor) = }")
+print(f"{img_dp.dtype = }, {img_dp.shape = }, {img_dp.sum() = }")
+isinstance(img_dp, torch.Tensor) = True
+img_dp.dtype = torch.uint8, img_dp.shape = torch.Size([3, 256, 256]), img_dp.sum() = tensor(25087958)
+These TVTensor classes are at the core of the transforms: in order to transform a given input, the transforms first look at the class of the object, and dispatch to the appropriate implementation accordingly.
+
+You don’t need to know much more about TVTensors at this point, but advanced users who want to learn more can refer to TVTensors FAQ.
+
+What do I pass as input?
+Above, we’ve seen two examples: one where we passed a single image as input i.e. out = transforms(img), and one where we passed both an image and bounding boxes, i.e. out_img, out_boxes = transforms(img, boxes).
+
+In fact, transforms support arbitrary input structures. The input can be a single image, a tuple, an arbitrarily nested dictionary… pretty much anything. The same structure will be returned as output. Below, we use the same detection transforms, but pass a tuple (image, target_dict) as input and we’re getting the same structure as output:
+
+target = {
+    "boxes": boxes,
+    "labels": torch.arange(boxes.shape[0]),
+    "this_is_ignored": ("arbitrary", {"structure": "!"})
+}
+
+# Re-using the transforms and definitions from above.
+out_img, out_target = transforms(img, target)
+
+plot([(img, target["boxes"]), (out_img, out_target["boxes"])])
+print(f"{out_target['this_is_ignored']}")
+plot transforms getting started
+('arbitrary', {'structure': '!'})
+We passed a tuple so we get a tuple back, and the second element is the tranformed target dict. Transforms don’t really care about the structure of the input; as mentioned above, they only care about the type of the objects and transforms them accordingly.
+
+Foreign objects like strings or ints are simply passed-through. This can be useful e.g. if you want to associate a path with every single sample when debugging!
+
+Note
+
+Disclaimer This note is slightly advanced and can be safely skipped on a first read.
+
+Pure torch.Tensor objects are, in general, treated as images (or as videos for video-specific transforms). Indeed, you may have noticed that in the code above we haven’t used the Image class at all, and yet our images got transformed properly. Transforms follow the following logic to determine whether a pure Tensor should be treated as an image (or video), or just ignored:
+
+If there is an Image, Video, or PIL.Image.Image instance in the input, all other pure tensors are passed-through.
+
+If there is no Image or Video instance, only the first pure torch.Tensor will be transformed as image or video, while all others will be passed-through. Here “first” means “first in a depth-wise traversal”.
+
+This is what happened in the detection example above: the first pure tensor was the image so it got transformed properly, and all other pure tensor instances like the labels were passed-through (although labels can still be transformed by some transforms like SanitizeBoundingBoxes!).
+
+Transforms and Datasets intercompatibility
+Roughly speaking, the output of the datasets must correspond to the input of the transforms. How to do that depends on whether you’re using the torchvision built-in datatsets, or your own custom datasets.
+
+Using built-in datasets
+If you’re just doing image classification, you don’t need to do anything. Just use transform argument of the dataset e.g. ImageNet(..., transform=transforms) and you’re good to go.
+
+Torchvision also supports datasets for object detection or segmentation like torchvision.datasets.CocoDetection. Those datasets predate the existence of the torchvision.transforms.v2 module and of the TVTensors, so they don’t return TVTensors out of the box.
+
+An easy way to force those datasets to return TVTensors and to make them compatible with v2 transforms is to use the torchvision.datasets.wrap_dataset_for_transforms_v2() function:
+
+from torchvision.datasets import CocoDetection, wrap_dataset_for_transforms_v2
+
+dataset = CocoDetection(..., transforms=my_transforms)
+dataset = wrap_dataset_for_transforms_v2(dataset)
+# Now the dataset returns TVTensors!
+Using your own datasets
+If you have a custom dataset, then you’ll need to convert your objects into the appropriate TVTensor classes. Creating TVTensor instances is very easy, refer to How do I construct a TVTensor? for more details.
+
+There are two main places where you can implement that conversion logic:
+
+At the end of the datasets’s __getitem__ method, before returning the sample (or by sub-classing the dataset).
+
+As the very first step of your transforms pipeline
+
+Either way, the logic will depend on your specific dataset.
+
+Total running time of the script: (0 minutes 0.779 seconds)
+
+Download Jupyter notebook: plot_transforms_getting_started.ipynb
+
+Download Python source code: plot_transforms_getting_started.py
+
+Download zipped: plot_transforms_getting_started.zip
+
+Gallery generated by Sphinx-Gallery
+
+© Copyright 2017-present, Torch Contributors.
+
+Built with Sphinx using a theme provided by Read the Docs.
+Docs
+Access comprehensive developer documentation for PyTorch
+
+View Docs
+Tutorials
+Get in-depth tutorials for beginners and advanced developers
+
+View Tutorials
+Resources
+Find development resources and get your questions answered
+
+View Resources
+PyTorch
+Get Started
+Features
+Ecosystem
+Blog
+Contributing
+Resources
+Tutorials
+Docs
+Discuss
+Github Issues
+Brand Guidelines
+Stay up to date
+Facebook
+Twitter
+YouTube
+LinkedIn
+PyTorch Podcasts
+Spotify
+Apple
+Google
+Amazon
+Terms
+ | 
+Privacy
+© Copyright The Linux Foundation. The PyTorch Foundation is a project of The Linux Foundation. For web site terms of use, trademark policy and other policies applicable to The PyTorch Foundation please see www.linuxfoundation.org/policies/. The PyTorch Foundation supports the PyTorch open source project, which has been established as PyTorch Project a Series of LF Projects, LLC. For policies applicable to the PyTorch Project a Series of LF Projects, LLC, please see www.lfprojects.org/policies/.
+
+To analyze traffic and optimize your experience, we serve cookies on this site. By clicking or navigating, you agree to allow our usage of cookies. As the current maintainers of this site, Facebook’s Cookies Policy applies. Learn more, including about available controls: Cookies Policy.
+
+
+
+Table of Contents
+Transforming images, videos, boxes and more
+Torchvision supports common computer vision transformations in the torchvision.transforms.v2 module. Transforms can be used to transform and augment data, for both training or inference. The following objects are supported:
+
+Images as pure tensors, Image or PIL image
+
+Videos as Video
+
+Axis-aligned and rotated bounding boxes as BoundingBoxes
+
+Segmentation and detection masks as Mask
+
+KeyPoints as KeyPoints.
+
+# Image Classification
+import torch
+from torchvision.transforms import v2
+
+H, W = 32, 32
+img = torch.randint(0, 256, size=(3, H, W), dtype=torch.uint8)
+
+transforms = v2.Compose([
+    v2.RandomResizedCrop(size=(224, 224), antialias=True),
+    v2.RandomHorizontalFlip(p=0.5),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+img = transforms(img)
+# Detection (re-using imports and transforms from above)
+from torchvision import tv_tensors
+
+img = torch.randint(0, 256, size=(3, H, W), dtype=torch.uint8)
+boxes = torch.randint(0, H // 2, size=(3, 4))
+boxes[:, 2:] += boxes[:, :2]
+boxes = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=(H, W))
+
+# The same transforms can be used!
+img, boxes = transforms(img, boxes)
+# And you can pass arbitrary input structures
+output_dict = transforms({"image": img, "boxes": boxes})
+Transforms are typically passed as the transform or transforms argument to the Datasets.
+
+Start here
+Whether you’re new to Torchvision transforms, or you’re already experienced with them, we encourage you to start with Getting started with transforms v2 in order to learn more about what can be done with the new v2 transforms.
+
+Then, browse the sections in below this page for general information and performance tips. The available transforms and functionals are listed in the API reference.
+
+More information and tutorials can also be found in our example gallery, e.g. Transforms v2: End-to-end object detection/segmentation example or How to write your own v2 transforms.
+
+Supported input types and conventions
+Most transformations accept both PIL images and tensor inputs. Both CPU and CUDA tensors are supported. The result of both backends (PIL or Tensors) should be very close. In general, we recommend relying on the tensor backend for performance. The conversion transforms may be used to convert to and from PIL images, or for converting dtypes and ranges.
+
+Tensor image are expected to be of shape (C, H, W), where C is the number of channels, and H and W refer to height and width. Most transforms support batched tensor input. A batch of Tensor images is a tensor of shape (N, C, H, W), where N is a number of images in the batch. The v2 transforms generally accept an arbitrary number of leading dimensions (..., C, H, W) and can handle batched images or batched videos.
+
+Dtype and expected value range
+The expected range of the values of a tensor image is implicitly defined by the tensor dtype. Tensor images with a float dtype are expected to have values in [0, 1]. Tensor images with an integer dtype are expected to have values in [0, MAX_DTYPE] where MAX_DTYPE is the largest value that can be represented in that dtype. Typically, images of dtype torch.uint8 are expected to have values in [0, 255].
+
+Use ToDtype to convert both the dtype and range of the inputs.
+
+V1 or V2? Which one should I use?
+TL;DR We recommend using the torchvision.transforms.v2 transforms instead of those in torchvision.transforms. They’re faster and they can do more things. Just change the import and you should be good to go. Moving forward, new features and improvements will only be considered for the v2 transforms.
+
+In Torchvision 0.15 (March 2023), we released a new set of transforms available in the torchvision.transforms.v2 namespace. These transforms have a lot of advantages compared to the v1 ones (in torchvision.transforms):
+
+They can transform images and also bounding boxes, masks, videos and keypoints. This provides support for tasks beyond image classification: detection, segmentation, video classification, pose estimation, etc. See Getting started with transforms v2 and Transforms v2: End-to-end object detection/segmentation example.
+
+They support more transforms like CutMix and MixUp. See How to use CutMix and MixUp.
+
+They’re faster.
+
+They support arbitrary input structures (dicts, lists, tuples, etc.).
+
+Future improvements and features will be added to the v2 transforms only.
+
+These transforms are fully backward compatible with the v1 ones, so if you’re already using tranforms from torchvision.transforms, all you need to do to is to update the import to torchvision.transforms.v2. In terms of output, there might be negligible differences due to implementation differences.
+
+Performance considerations
+We recommend the following guidelines to get the best performance out of the transforms:
+
+Rely on the v2 transforms from torchvision.transforms.v2
+
+Use tensors instead of PIL images
+
+Use torch.uint8 dtype, especially for resizing
+
+Resize with bilinear or bicubic mode
+
+This is what a typical transform pipeline could look like:
+
+from torchvision.transforms import v2
+transforms = v2.Compose([
+    v2.ToImage(),  # Convert to tensor, only needed if you had a PIL image
+    v2.ToDtype(torch.uint8, scale=True),  # optional, most input are already uint8 at this point
+    # ...
+    v2.RandomResizedCrop(size=(224, 224), antialias=True),  # Or Resize(antialias=True)
+    # ...
+    v2.ToDtype(torch.float32, scale=True),  # Normalize expects float input
+    v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+The above should give you the best performance in a typical training environment that relies on the torch.utils.data.DataLoader with num_workers > 0.
+
+Transforms tend to be sensitive to the input strides / memory format. Some transforms will be faster with channels-first images while others prefer channels-last. Like torch operators, most transforms will preserve the memory format of the input, but this may not always be respected due to implementation details. You may want to experiment a bit if you’re chasing the very best performance. Using torch.compile() on individual transforms may also help factoring out the memory format variable (e.g. on Normalize). Note that we’re talking about memory format, not tensor shape.
+
+Note that resize transforms like Resize and RandomResizedCrop typically prefer channels-last input and tend not to benefit from torch.compile() at this time.
+
+Transform classes, functionals, and kernels
+Transforms are available as classes like Resize, but also as functionals like resize() in the torchvision.transforms.v2.functional namespace. This is very much like the torch.nn package which defines both classes and functional equivalents in torch.nn.functional.
+
+The functionals support PIL images, pure tensors, or TVTensors, e.g. both resize(image_tensor) and resize(boxes) are valid.
+
+Note
+
+Random transforms like RandomCrop will randomly sample some parameter each time they’re called. Their functional counterpart (crop()) does not do any kind of random sampling and thus have a slighlty different parametrization. The get_params() class method of the transforms class can be used to perform parameter sampling when using the functional APIs.
+
+The torchvision.transforms.v2.functional namespace also contains what we call the “kernels”. These are the low-level functions that implement the core functionalities for specific types, e.g. resize_bounding_boxes or `resized_crop_mask. They are public, although not documented. Check the code to see which ones are available (note that those starting with a leading underscore are not public!). Kernels are only really useful if you want torchscript support for types like bounding boxes or masks.
+
+Torchscript support
+Most transform classes and functionals support torchscript. For composing transforms, use torch.nn.Sequential instead of Compose:
+
+transforms = torch.nn.Sequential(
+    CenterCrop(10),
+    Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+)
+scripted_transforms = torch.jit.script(transforms)
+Warning
+
+v2 transforms support torchscript, but if you call torch.jit.script() on a v2 class transform, you’ll actually end up with its (scripted) v1 equivalent. This may lead to slightly different results between the scripted and eager executions due to implementation differences between v1 and v2.
+
+If you really need torchscript support for the v2 transforms, we recommend scripting the functionals from the torchvision.transforms.v2.functional namespace to avoid surprises.
+
+Also note that the functionals only support torchscript for pure tensors, which are always treated as images. If you need torchscript support for other types like bounding boxes or masks, you can rely on the low-level kernels.
+
+For any custom transformations to be used with torch.jit.script, they should be derived from torch.nn.Module.
+
+See also: Torchscript support.
+
+V2 API reference - Recommended
+Geometry
+Resizing
+v2.Resize(size[, interpolation, max_size, ...])
+
+Resize the input to the given size.
+
+v2.ScaleJitter(target_size[, scale_range, ...])
+
+Perform Large Scale Jitter on the input according to "Simple Copy-Paste is a Strong Data Augmentation Method for Instance Segmentation".
+
+v2.RandomShortestSize(min_size[, max_size, ...])
+
+Randomly resize the input.
+
+v2.RandomResize(min_size, max_size[, ...])
+
+Randomly resize the input.
+
+Functionals
+
+v2.functional.resize(inpt, size[, ...])
+
+See Resize for details.
+
+Cropping
+v2.RandomCrop(size[, padding, ...])
+
+Crop the input at a random location.
+
+v2.RandomResizedCrop(size[, scale, ratio, ...])
+
+Crop a random portion of the input and resize it to a given size.
+
+v2.RandomIoUCrop([min_scale, max_scale, ...])
+
+Random IoU crop transformation from "SSD: Single Shot MultiBox Detector".
+
+v2.CenterCrop(size)
+
+Crop the input at the center.
+
+v2.FiveCrop(size)
+
+Crop the image or video into four corners and the central crop.
+
+v2.TenCrop(size[, vertical_flip])
+
+Crop the image or video into four corners and the central crop plus the flipped version of these (horizontal flipping is used by default).
+
+Functionals
+
+v2.functional.crop(inpt, top, left, height, ...)
+
+See RandomCrop for details.
+
+v2.functional.resized_crop(inpt, top, left, ...)
+
+See RandomResizedCrop for details.
+
+v2.functional.ten_crop(inpt, size[, ...])
+
+See TenCrop for details.
+
+v2.functional.center_crop(inpt, output_size)
+
+See RandomCrop for details.
+
+v2.functional.five_crop(inpt, size)
+
+See FiveCrop for details.
+
+Others
+v2.RandomHorizontalFlip([p])
+
+Horizontally flip the input with a given probability.
+
+v2.RandomVerticalFlip([p])
+
+Vertically flip the input with a given probability.
+
+v2.Pad(padding[, fill, padding_mode])
+
+Pad the input on all sides with the given "pad" value.
+
+v2.RandomZoomOut([fill, side_range, p])
+
+"Zoom out" transformation from "SSD: Single Shot MultiBox Detector".
+
+v2.RandomRotation(degrees[, interpolation, ...])
+
+Rotate the input by angle.
+
+v2.RandomAffine(degrees[, translate, scale, ...])
+
+Random affine transformation the input keeping center invariant.
+
+v2.RandomPerspective([distortion_scale, p, ...])
+
+Perform a random perspective transformation of the input with a given probability.
+
+v2.ElasticTransform([alpha, sigma, ...])
+
+Transform the input with elastic transformations.
+
+Functionals
+
+v2.functional.horizontal_flip(inpt)
+
+See RandomHorizontalFlip for details.
+
+v2.functional.vertical_flip(inpt)
+
+See RandomVerticalFlip for details.
+
+v2.functional.pad(inpt, padding[, fill, ...])
+
+See Pad for details.
+
+v2.functional.rotate(inpt, angle[, ...])
+
+See RandomRotation for details.
+
+v2.functional.affine(inpt, angle, translate, ...)
+
+See RandomAffine for details.
+
+v2.functional.perspective(inpt, startpoints, ...)
+
+See RandomPerspective for details.
+
+v2.functional.elastic(inpt, displacement[, ...])
+
+See ElasticTransform for details.
+
+Color
+v2.ColorJitter([brightness, contrast, ...])
+
+Randomly change the brightness, contrast, saturation and hue of an image or video.
+
+v2.RandomChannelPermutation()
+
+Randomly permute the channels of an image or video
+
+v2.RandomPhotometricDistort([brightness, ...])
+
+Randomly distorts the image or video as used in SSD: Single Shot MultiBox Detector.
+
+v2.Grayscale([num_output_channels])
+
+Convert images or videos to grayscale.
+
+v2.RGB()
+
+Convert images or videos to RGB (if they are already not RGB).
+
+v2.RandomGrayscale([p])
+
+Randomly convert image or videos to grayscale with a probability of p (default 0.1).
+
+v2.GaussianBlur(kernel_size[, sigma])
+
+Blurs image with randomly chosen Gaussian blur kernel.
+
+v2.GaussianNoise([mean, sigma, clip])
+
+Add gaussian noise to images or videos.
+
+v2.RandomInvert([p])
+
+Inverts the colors of the given image or video with a given probability.
+
+v2.RandomPosterize(bits[, p])
+
+Posterize the image or video with a given probability by reducing the number of bits for each color channel.
+
+v2.RandomSolarize(threshold[, p])
+
+Solarize the image or video with a given probability by inverting all pixel values above a threshold.
+
+v2.RandomAdjustSharpness(sharpness_factor[, p])
+
+Adjust the sharpness of the image or video with a given probability.
+
+v2.RandomAutocontrast([p])
+
+Autocontrast the pixels of the given image or video with a given probability.
+
+v2.RandomEqualize([p])
+
+Equalize the histogram of the given image or video with a given probability.
+
+Functionals
+
+v2.functional.permute_channels(inpt, permutation)
+
+Permute the channels of the input according to the given permutation.
+
+v2.functional.rgb_to_grayscale(inpt[, ...])
+
+See Grayscale for details.
+
+v2.functional.grayscale_to_rgb(inpt)
+
+See RGB for details.
+
+v2.functional.to_grayscale(inpt[, ...])
+
+See Grayscale for details.
+
+v2.functional.gaussian_blur(inpt, kernel_size)
+
+See GaussianBlur for details.
+
+v2.functional.gaussian_noise(inpt[, mean, ...])
+
+See GaussianNoise
+
+v2.functional.invert(inpt)
+
+See RandomInvert().
+
+v2.functional.posterize(inpt, bits)
+
+See RandomPosterize for details.
+
+v2.functional.solarize(inpt, threshold)
+
+See RandomSolarize for details.
+
+v2.functional.adjust_sharpness(inpt, ...)
+
+See RandomAdjustSharpness
+
+v2.functional.autocontrast(inpt)
+
+See RandomAutocontrast for details.
+
+v2.functional.adjust_contrast(inpt, ...)
+
+See RandomAutocontrast
+
+v2.functional.equalize(inpt)
+
+See RandomEqualize for details.
+
+v2.functional.adjust_brightness(inpt, ...)
+
+Adjust brightness.
+
+v2.functional.adjust_saturation(inpt, ...)
+
+Adjust saturation.
+
+v2.functional.adjust_hue(inpt, hue_factor)
+
+Adjust hue
+
+v2.functional.adjust_gamma(inpt, gamma[, gain])
+
+Adjust gamma.
+
+Composition
+v2.Compose(transforms)
+
+Composes several transforms together.
+
+v2.RandomApply(transforms[, p])
+
+Apply randomly a list of transformations with a given probability.
+
+v2.RandomChoice(transforms[, p])
+
+Apply single transformation randomly picked from a list.
+
+v2.RandomOrder(transforms)
+
+Apply a list of transformations in a random order.
+
+Miscellaneous
+v2.LinearTransformation(...)
+
+Transform a tensor image or video with a square transformation matrix and a mean_vector computed offline.
+
+v2.Normalize(mean, std[, inplace])
+
+Normalize a tensor image or video with mean and standard deviation.
+
+v2.RandomErasing([p, scale, ratio, value, ...])
+
+Randomly select a rectangle region in the input image or video and erase its pixels.
+
+v2.Lambda(lambd, *types)
+
+Apply a user-defined function as a transform.
+
+v2.SanitizeBoundingBoxes([min_size, ...])
+
+Remove degenerate/invalid bounding boxes and their corresponding labels and masks.
+
+v2.SanitizeKeyPoints([labels_getter])
+
+Remove keypoints outside of the image area and their corresponding labels (if any).
+
+v2.ClampBoundingBoxes([clamping_mode])
+
+Clamp bounding boxes to their corresponding image dimensions.
+
+v2.ClampKeyPoints()
+
+Clamp keypoints to their corresponding image dimensions.
+
+v2.UniformTemporalSubsample(num_samples)
+
+Uniformly subsample num_samples indices from the temporal dimension of the video.
+
+v2.JPEG(quality)
+
+Apply JPEG compression and decompression to the given images.
+
+Functionals
+
+v2.functional.normalize(inpt, mean, std[, ...])
+
+See Normalize for details.
+
+v2.functional.erase(inpt, i, j, h, w, v[, ...])
+
+See RandomErase for details.
+
+v2.functional.sanitize_bounding_boxes(...[, ...])
+
+Remove degenerate/invalid bounding boxes and return the corresponding indexing mask.
+
+v2.functional.sanitize_keypoints(key_points)
+
+Remove keypoints outside of the image area and their corresponding labels (if any).
+
+v2.functional.clamp_bounding_boxes(inpt[, ...])
+
+See ClampBoundingBoxes() for details.
+
+v2.functional.clamp_keypoints(inpt[, ...])
+
+See ClampKeyPoints() for details.
+
+v2.functional.uniform_temporal_subsample(...)
+
+See UniformTemporalSubsample for details.
+
+v2.functional.jpeg(image, quality)
+
+See JPEG for details.
+
+Conversion
+Note
+
+Beware, some of these conversion transforms below will scale the values while performing the conversion, while some may not do any scaling. By scaling, we mean e.g. that a uint8 -> float32 would map the [0, 255] range into [0, 1] (and vice-versa). See Dtype and expected value range.
+
+v2.ToImage()
+
+Convert a tensor, ndarray, or PIL Image to Image ; this does not scale values.
+
+v2.ToPureTensor()
+
+Convert all TVTensors to pure tensors, removing associated metadata (if any).
+
+v2.PILToTensor()
+
+Convert a PIL Image to a tensor of the same type - this does not scale values.
+
+v2.ToPILImage([mode])
+
+Convert a tensor or an ndarray to PIL Image
+
+v2.ToDtype(dtype[, scale])
+
+Converts the input to a specific dtype, optionally scaling the values for images or videos.
+
+v2.ConvertBoundingBoxFormat(format)
+
+Convert bounding box coordinates to the given format, eg from "CXCYWH" to "XYXY".
+
+functionals
+
+v2.functional.to_image(inpt)
+
+See ToImage for details.
+
+v2.functional.pil_to_tensor(pic)
+
+Convert a PIL Image to a tensor of the same type.
+
+v2.functional.to_pil_image(pic[, mode])
+
+Convert a tensor or an ndarray to PIL Image.
+
+v2.functional.to_dtype(inpt[, dtype, scale])
+
+See ToDtype() for details.
+
+v2.functional.convert_bounding_box_format(inpt)
+
+See ConvertBoundingBoxFormat() for details.
+
+Deprecated
+
+v2.ToTensor()
+
+[DEPRECATED] Use v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)]) instead.
+
+v2.functional.to_tensor(inpt)
+
+[DEPREACTED] Use to_image() and to_dtype() instead.
+
+v2.ConvertImageDtype([dtype])
+
+[DEPRECATED] Use v2.ToDtype(dtype, scale=True) instead.
+
+v2.functional.convert_image_dtype(image[, dtype])
+
+[DEPRECATED] Use to_dtype() instead.
+
+Auto-Augmentation
+AutoAugment is a common Data Augmentation technique that can improve the accuracy of Image Classification models. Though the data augmentation policies are directly linked to their trained dataset, empirical studies show that ImageNet policies provide significant improvements when applied to other datasets. In TorchVision we implemented 3 policies learned on the following datasets: ImageNet, CIFAR10 and SVHN. The new transform can be used standalone or mixed-and-matched with existing transforms:
+
+v2.AutoAugment([policy, interpolation, fill])
+
+AutoAugment data augmentation method based on "AutoAugment: Learning Augmentation Strategies from Data".
+
+v2.RandAugment([num_ops, magnitude, ...])
+
+RandAugment data augmentation method based on "RandAugment: Practical automated data augmentation with a reduced search space".
+
+v2.TrivialAugmentWide([num_magnitude_bins, ...])
+
+Dataset-independent data-augmentation with TrivialAugment Wide, as described in "TrivialAugment: Tuning-free Yet State-of-the-Art Data Augmentation".
+
+v2.AugMix([severity, mixture_width, ...])
+
+AugMix data augmentation method based on "AugMix: A Simple Data Processing Method to Improve Robustness and Uncertainty".
+
+CutMix - MixUp
+CutMix and MixUp are special transforms that are meant to be used on batches rather than on individual images, because they are combining pairs of images together. These can be used after the dataloader (once the samples are batched), or part of a collation function. See How to use CutMix and MixUp for detailed usage examples.
+
+v2.CutMix(*[, alpha, num_classes, labels_getter])
+
+Apply CutMix to the provided batch of images and labels.
+
+v2.MixUp(*[, alpha, num_classes, labels_getter])
+
+Apply MixUp to the provided batch of images and labels.
+
+Developer tools
+v2.Transform()
+
+Base class to implement your own v2 transforms.
+
+v2.functional.register_kernel(functional, ...)
+
+Decorate a kernel to register it for a functional and a (custom) tv_tensor type.
+
+v2.query_size(flat_inputs)
+
+Return Height and Width.
+
+v2.query_chw(flat_inputs)
+
+Return Channel, Height, and Width.
+
+v2.get_bounding_boxes(flat_inputs)
+
+Return the Bounding Boxes in the input.
+
+v2.get_keypoints(flat_inputs)
+
+Return the keypoints in the input.
+
+V1 API Reference
+Geometry
+Resize(size[, interpolation, max_size, ...])
+
+Resize the input image to the given size.
+
+RandomCrop(size[, padding, pad_if_needed, ...])
+
+Crop the given image at a random location.
+
+RandomResizedCrop(size[, scale, ratio, ...])
+
+Crop a random portion of image and resize it to a given size.
+
+CenterCrop(size)
+
+Crops the given image at the center.
+
+FiveCrop(size)
+
+Crop the given image into four corners and the central crop.
+
+TenCrop(size[, vertical_flip])
+
+Crop the given image into four corners and the central crop plus the flipped version of these (horizontal flipping is used by default).
+
+Pad(padding[, fill, padding_mode])
+
+Pad the given image on all sides with the given "pad" value.
+
+RandomRotation(degrees[, interpolation, ...])
+
+Rotate the image by angle.
+
+RandomAffine(degrees[, translate, scale, ...])
+
+Random affine transformation of the image keeping center invariant.
+
+RandomPerspective([distortion_scale, p, ...])
+
+Performs a random perspective transformation of the given image with a given probability.
+
+ElasticTransform([alpha, sigma, ...])
+
+Transform a tensor image with elastic transformations.
+
+RandomHorizontalFlip([p])
+
+Horizontally flip the given image randomly with a given probability.
+
+RandomVerticalFlip([p])
+
+Vertically flip the given image randomly with a given probability.
+
+Color
+ColorJitter([brightness, contrast, ...])
+
+Randomly change the brightness, contrast, saturation and hue of an image.
+
+Grayscale([num_output_channels])
+
+Convert image to grayscale.
+
+RandomGrayscale([p])
+
+Randomly convert image to grayscale with a probability of p (default 0.1).
+
+GaussianBlur(kernel_size[, sigma])
+
+Blurs image with randomly chosen Gaussian blur.
+
+RandomInvert([p])
+
+Inverts the colors of the given image randomly with a given probability.
+
+RandomPosterize(bits[, p])
+
+Posterize the image randomly with a given probability by reducing the number of bits for each color channel.
+
+RandomSolarize(threshold[, p])
+
+Solarize the image randomly with a given probability by inverting all pixel values above a threshold.
+
+RandomAdjustSharpness(sharpness_factor[, p])
+
+Adjust the sharpness of the image randomly with a given probability.
+
+RandomAutocontrast([p])
+
+Autocontrast the pixels of the given image randomly with a given probability.
+
+RandomEqualize([p])
+
+Equalize the histogram of the given image randomly with a given probability.
+
+Composition
+Compose(transforms)
+
+Composes several transforms together.
+
+RandomApply(transforms[, p])
+
+Apply randomly a list of transformations with a given probability.
+
+RandomChoice(transforms[, p])
+
+Apply single transformation randomly picked from a list.
+
+RandomOrder(transforms)
+
+Apply a list of transformations in a random order.
+
+Miscellaneous
+LinearTransformation(transformation_matrix, ...)
+
+Transform a tensor image with a square transformation matrix and a mean_vector computed offline.
+
+Normalize(mean, std[, inplace])
+
+Normalize a tensor image with mean and standard deviation.
+
+RandomErasing([p, scale, ratio, value, inplace])
+
+Randomly selects a rectangle region in a torch.Tensor image and erases its pixels.
+
+Lambda(lambd)
+
+Apply a user-defined lambda as a transform.
+
+Conversion
+Note
+
+Beware, some of these conversion transforms below will scale the values while performing the conversion, while some may not do any scaling. By scaling, we mean e.g. that a uint8 -> float32 would map the [0, 255] range into [0, 1] (and vice-versa). See Dtype and expected value range.
+
+ToPILImage([mode])
+
+Convert a tensor or an ndarray to PIL Image
+
+ToTensor()
+
+Convert a PIL Image or ndarray to tensor and scale the values accordingly.
+
+PILToTensor()
+
+Convert a PIL Image to a tensor of the same type - this does not scale values.
+
+ConvertImageDtype(dtype)
+
+Convert a tensor image to the given dtype and scale the values accordingly.
+
+Auto-Augmentation
+AutoAugment is a common Data Augmentation technique that can improve the accuracy of Image Classification models. Though the data augmentation policies are directly linked to their trained dataset, empirical studies show that ImageNet policies provide significant improvements when applied to other datasets. In TorchVision we implemented 3 policies learned on the following datasets: ImageNet, CIFAR10 and SVHN. The new transform can be used standalone or mixed-and-matched with existing transforms:
+
+AutoAugmentPolicy(value)
+
+AutoAugment policies learned on different datasets.
+
+AutoAugment([policy, interpolation, fill])
+
+AutoAugment data augmentation method based on "AutoAugment: Learning Augmentation Strategies from Data".
+
+RandAugment([num_ops, magnitude, ...])
+
+RandAugment data augmentation method based on "RandAugment: Practical automated data augmentation with a reduced search space".
+
+TrivialAugmentWide([num_magnitude_bins, ...])
+
+Dataset-independent data-augmentation with TrivialAugment Wide, as described in "TrivialAugment: Tuning-free Yet State-of-the-Art Data Augmentation".
+
+AugMix([severity, mixture_width, ...])
+
+AugMix data augmentation method based on "AugMix: A Simple Data Processing Method to Improve Robustness and Uncertainty".
+
+Functional Transforms
+adjust_brightness(img, brightness_factor)
+
+Adjust brightness of an image.
+
+adjust_contrast(img, contrast_factor)
+
+Adjust contrast of an image.
+
+adjust_gamma(img, gamma[, gain])
+
+Perform gamma correction on an image.
+
+adjust_hue(img, hue_factor)
+
+Adjust hue of an image.
+
+adjust_saturation(img, saturation_factor)
+
+Adjust color saturation of an image.
+
+adjust_sharpness(img, sharpness_factor)
+
+Adjust the sharpness of an image.
+
+affine(img, angle, translate, scale, shear)
+
+Apply affine transformation on the image keeping image center invariant.
+
+autocontrast(img)
+
+Maximize contrast of an image by remapping its pixels per channel so that the lowest becomes black and the lightest becomes white.
+
+center_crop(img, output_size)
+
+Crops the given image at the center.
+
+convert_image_dtype(image[, dtype])
+
+Convert a tensor image to the given dtype and scale the values accordingly This function does not support PIL Image.
+
+crop(img, top, left, height, width)
+
+Crop the given image at specified location and output size.
+
+equalize(img)
+
+Equalize the histogram of an image by applying a non-linear mapping to the input in order to create a uniform distribution of grayscale values in the output.
+
+erase(img, i, j, h, w, v[, inplace])
+
+Erase the input Tensor Image with given value.
+
+five_crop(img, size)
+
+Crop the given image into four corners and the central crop.
+
+gaussian_blur(img, kernel_size[, sigma])
+
+Performs Gaussian blurring on the image by given kernel
+
+get_dimensions(img)
+
+Returns the dimensions of an image as [channels, height, width].
+
+get_image_num_channels(img)
+
+Returns the number of channels of an image.
+
+get_image_size(img)
+
+Returns the size of an image as [width, height].
+
+hflip(img)
+
+Horizontally flip the given image.
+
+invert(img)
+
+Invert the colors of an RGB/grayscale image.
+
+normalize(tensor, mean, std[, inplace])
+
+Normalize a float tensor image with mean and standard deviation.
+
+pad(img, padding[, fill, padding_mode])
+
+Pad the given image on all sides with the given "pad" value.
+
+perspective(img, startpoints, endpoints[, ...])
+
+Perform perspective transform of the given image.
+
+pil_to_tensor(pic)
+
+Convert a PIL Image to a tensor of the same type.
+
+posterize(img, bits)
+
+Posterize an image by reducing the number of bits for each color channel.
+
+resize(img, size[, interpolation, max_size, ...])
+
+Resize the input image to the given size.
+
+resized_crop(img, top, left, height, width, size)
+
+Crop the given image and resize it to desired size.
+
+rgb_to_grayscale(img[, num_output_channels])
+
+Convert RGB image to grayscale version of image.
+
+rotate(img, angle[, interpolation, expand, ...])
+
+Rotate the image by angle.
+
+solarize(img, threshold)
+
+Solarize an RGB/grayscale image by inverting all pixel values above a threshold.
+
+ten_crop(img, size[, vertical_flip])
+
+Generate ten cropped images from the given image.
+
+to_grayscale(img[, num_output_channels])
+
+Convert PIL image of any mode (RGB, HSV, LAB, etc) to grayscale version of image.
+
+to_pil_image(pic[, mode])
+
+Convert a tensor or an ndarray to PIL Image.
+
+to_tensor(pic)
+
+Convert a PIL Image or numpy.ndarray to tensor.
+
+vflip(img)
+
+Vertically flip the given image.
+
+© Copyright 2017-present, Torch Contributors.
+
+Built with Sphinx using a theme provided by Read the Docs.
+Docs
+Access comprehensive developer documentation for PyTorch
+
+View Docs
+Tutorials
+Get in-depth tutorials for beginners and advanced developers
+
+View Tutorials
+Resources
+Find development resources and get your questions answered
+
+View Resources
+PyTorch
+Get Started
+Features
+Ecosystem
+Blog
+Contributing
+Resources
+Tutorials
+Docs
+Discuss
+Github Issues
+Brand Guidelines
+Stay up to date
+Facebook
+Twitter
+YouTube
+LinkedIn
+PyTorch Podcasts
+Spotify
+Apple
+Google
+Amazon
+Terms
+ | 
+Privacy
+© Copyright The Linux Foundation. The PyTorch Foundation is a project of The Linux Foundation. For web site terms of use, trademark policy and other policies applicable to The PyTorch Foundation please see www.linuxfoundation.org/policies/. The PyTorch Foundation supports the PyTorch open source project, which has been established as PyTorch Project a Series of LF Projects, LLC. For policies applicable to the PyTorch Project a Series of LF Projects, LLC, please see www.lfprojects.org/policies/.
+
+Apply Data Augmentation
+
+# To-Do
+
+# --- Apply Data Augmentation (balance the dataset by augmented oversampling of the "bird" class) ---
+
+import math
+import torch
+from torch.utils.data import Dataset, Subset, ConcatDataset, DataLoader
+from torchvision.transforms import v2
+from torchvision import datasets
+
+# (Re)load CIFAR-10 WITHOUT transforms so we can apply torchvision.transforms.v2 cleanly
+trainset_raw = datasets.CIFAR10(root="CIFAR10_data/", train=True, download=True, transform=None)
+testset_raw  = datasets.CIFAR10(root="CIFAR10_data/", train=False, download=True, transform=None)
+
+# v2 transforms: base preprocessing (no randomness) + augmentation pipeline
+base_preprocess = v2.Compose([
+    v2.ToImage(),
+    v2.Resize((224, 224), antialias=True),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+])
+
+bird_augment = v2.Compose([
+    v2.ToImage(),
+    v2.RandomResizedCrop(size=(224, 224), scale=(0.7, 1.0), ratio=(0.75, 1.33), antialias=True),
+    v2.RandomHorizontalFlip(p=0.5),
+    v2.RandomRotation(degrees=15),
+    v2.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.05),
+    v2.RandomErasing(p=0.25, scale=(0.02, 0.15), ratio=(0.3, 3.3), value="random"),
+    v2.ToDtype(torch.float32, scale=True),
+    v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+])
+
+class TransformOnlyImage(Dataset):
+    def __init__(self, subset: Dataset, transform: torch.nn.Module):
+        self.subset = subset
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.subset)
+
+    def __getitem__(self, idx):
+        img, label = self.subset[idx]
+        img = self.transform(img)
+        return img, label
+
+# Recompute filtered indices (same limits as provided)
+train_indices = filter_indices_with_limits(trainset_raw, train_limits)
+test_indices  = filter_indices_with_limits(testset_raw,  test_limits)
+
+# Split filtered indices by class
+cls_to_idx = trainset_raw.class_to_idx
+airplane_id   = cls_to_idx["airplane"]
+automobile_id = cls_to_idx["automobile"]
+bird_id       = cls_to_idx["bird"]
+
+airplane_indices   = [i for i in train_indices if trainset_raw.targets[i] == airplane_id]
+automobile_indices = [i for i in train_indices if trainset_raw.targets[i] == automobile_id]
+bird_indices       = [i for i in train_indices if trainset_raw.targets[i] == bird_id]
+
+# Target: match the majority class count (500)
+target_per_class = max(len(airplane_indices), len(automobile_indices))
+bird_needed = target_per_class - len(bird_indices)
+
+# Create extra "bird" samples by repeating indices and applying stronger augmentation
+if bird_needed > 0:
+    reps = math.ceil(bird_needed / max(1, len(bird_indices)))
+    bird_extra_indices = (bird_indices * reps)[:bird_needed]
+else:
+    bird_extra_indices = []
+
+# Build balanced training dataset:
+# - airplane + automobile: base_preprocess
+# - bird originals: base_preprocess
+# - bird extra: bird_augment
+train_airplane_ds   = TransformOnlyImage(Subset(trainset_raw, airplane_indices), base_preprocess)
+train_automobile_ds = TransformOnlyImage(Subset(trainset_raw, automobile_indices), base_preprocess)
+train_bird_orig_ds  = TransformOnlyImage(Subset(trainset_raw, bird_indices), base_preprocess)
+
+datasets_to_concat = [train_airplane_ds, train_automobile_ds, train_bird_orig_ds]
+
+if len(bird_extra_indices) > 0:
+    train_bird_aug_ds = TransformOnlyImage(Subset(trainset_raw, bird_extra_indices), bird_augment)
+    datasets_to_concat.append(train_bird_aug_ds)
+
+trainset_balanced = ConcatDataset(datasets_to_concat)
+
+# Re-create DataLoaders (overwrite the previous ones)
+trainloader = DataLoader(trainset_balanced, batch_size=64, shuffle=True)
+
+# Test set: no augmentation, only base preprocessing
+testset_filtered_v2 = TransformOnlyImage(Subset(testset_raw, test_indices), base_preprocess)
+testloader = DataLoader(testset_filtered_v2, batch_size=64, shuffle=True)
+
+Fine-Tunning
+Now we are going to perform fine-tuning on the two architectures that have been implemented.
+
+
+# model = # Your model
+# model.load_state_dict(vgg19.state_dict())
+# model.load_state_dict(alexnet.state_dict())
+
+# We have to modify the Classifier for 3 classes
+model = vgg19
+num_features = model.classifier[6].in_features
+model.classifier[6] = nn.Linear(num_features, 3)
+model.to(device)
+
+Loss Function and Optimizer
+
+#@title Loss Function and Optimizer
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.00001)
+
+
+CNN Architectures
+In this notebook, we are going to implement a state-of-the-art convolutional neural network. You can use PyTorch, Keras, or TensorFlow for this purpose. However, you should provide a summary of the created network at the end. You have to implement an architecture between AlexNet and VGG19 and another architecture between Resnet50 and Inception v1.
+
+Example of Summary
+
+[ ]
+VGG19 Architecture
+1 celda oculta
+AlexNet Architecture
+1 celda oculta
+Resnet50 Architecture
+Resnet50
+
+
+[ ]
+   1
+resnet50
+ResNet(
+  (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+  (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (relu): ReLU(inplace=True)
+  (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+  (layer1): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (layer2): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (3): Bottleneck(
+      (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (layer3): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (3): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (4): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (5): Bottleneck(
+      (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (layer4): Sequential(
+    (0): Bottleneck(
+      (conv1): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+      (downsample): Sequential(
+        (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False)
+        (1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      )
+    )
+    (1): Bottleneck(
+      (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+    (2): Bottleneck(
+      (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (relu): ReLU(inplace=True)
+    )
+  )
+  (avgpool): AdaptiveAvgPool2d(output_size=(1, 1))
+  (fc): Linear(in_features=2048, out_features=1000, bias=True)
+)
+Inception v3 Architecture
+
+2 celdas ocultas
+First Implementation:
+
+[ ]
+   1
+# To-Do
+Second Implementation:
+
+[ ]
+   1
+# To-Do
+Auxiliary code to check the created model.
+
+[ ]
+   1
+   2
+   3
+   4
+   5
+from torchvision import models
+alexnet = models.alexnet(pretrained=True)
+vgg19 = models.vgg19(pretrained=True)
+resnet50 = models.resnet50(pretrained=True)
+inceptionv3 = models.inception_v3(pretrained=True)
+
+[ ]
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   9
+  10
+  11
+  12
+  13
+  14
+  15
+  16
+  17
+  18
+import io
+import sys
+
+def capture_model_print(model):
+    old_stdout = sys.stdout
+    sys.stdout = buffer = io.StringIO()
+    print(model)
+    sys.stdout = old_stdout
+    return buffer.getvalue()
+
+model = # Model
+custom_model = capture_model_print(model)
+pytorch_model = capture_model_print(vgg19)
+
+if custom_model == pytorch_model:
+    print("The models have identical structures.")
+else:
+    print("The models structures differ.")
+Dataset and Training
+Now we are going to train one of the implemented networks. For this, we will use the CIFAR-10 dataset. This dataset is composed of 10 classes but we will only use 3.
+
+Imports
+
+[ ]
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   9
+  10
+  11
+  12
+  13
+  14
+  15
+  16
+  17
+  18
+#@title Imports
+import glob
+import random
+import numpy as np
+import pandas as pd
+
+import torch
+from torch import nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Subset
+
+torch.manual_seed(42)
+np.random.seed(42)
+random.seed(42)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+Dataset
+
+[ ]
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   9
+  10
+  11
+  12
+  13
+  14
+  15
+  16
+  17
+  18
+  19
+  20
+  21
+  22
+  23
+  24
+  25
+  26
+  27
+  28
+  29
+  30
+  31
+  32
+  33
+  34
+  35
+  36
+  37
+#@title Dataset
+
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # Normalize to [-1, 1] range
+])
+
+def filter_indices_with_limits(dataset, class_sample_limits):
+    indices = []
+    class_counts = {cls: 0 for cls in class_sample_limits.keys()}
+    for i in range(len(dataset)):
+        _, label = dataset[i]
+        class_name = dataset.classes[label]
+        if class_name in class_sample_limits:
+            if class_counts[class_name] < class_sample_limits[class_name]:
+                indices.append(i)
+                class_counts[class_name] += 1
+            if all(class_counts[cls] >= limit for cls, limit in class_sample_limits.items()):
+                break
+    return indices
+
+
+trainset = datasets.CIFAR10(root='CIFAR10_data/', train=True, download=True, transform=transform)
+testset = datasets.CIFAR10(root='CIFAR10_data/', train=False, download=True, transform=transform)
+
+train_limits = {'airplane': 500, 'automobile': 500, 'bird': 50}
+test_limits = {'airplane': 100, 'automobile': 100, 'bird': 100}
+
+train_indices = filter_indices_with_limits(trainset, train_limits)
+trainset_filtered = Subset(trainset, train_indices)
+
+test_indices = filter_indices_with_limits(testset, test_limits)
+testset_filtered = Subset(testset, test_indices)
+
+trainloader = DataLoader(trainset_filtered, batch_size=64, shuffle=True)
+testloader = DataLoader(testset_filtered, batch_size=64, shuffle=True)
+Data Augmentation
+As you can see, we have a dataset that is not balanced. The bird class only has 50 samples, while airplane and automobile have 500. In this section, you will need to implement a data augmentation technique to solve this problem in our dataset.
+
+You can find examples of different techniques at the following link:
+
+Getting started with transforms v2
+Transforming and augmenting images
+Apply Data Augmentation
+
+[ ]
+   1
+# To-Do
+Fine-Tunning
+Now we are going to perform fine-tuning on the two architectures that have been implemented.
+
+
+[ ]
+123456789
+# model = # Your model
+# model.load_state_dict(vgg19.state_dict())
+# model.load_state_dict(alexnet.state_dict())
+
+# We have to modify the Classifier for 3 classes
+model = vgg19
+num_features = model.classifier[6].in_features
+model.classifier[6] = nn.Linear(num_features, 3)
+model.to(device)
+Loss Function and Optimizer
+
+[ ]
+1234
+#@title Loss Function and Optimizer
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.00001)
+Training
+
+
+#@title Training
+
+num_epochs = 3
+for epoch in range(num_epochs):
+    running_loss = 0.0
+    for images, labels in trainloader:
+        images, labels = images.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+
+        # Forward + backward + optimize
+        outputs = model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+
+    print(f"Epoch {epoch+1}, Loss: {running_loss/len(trainloader)}")
+
+
+    Test the model
+
+
+#@title Test the model
+
+correct = 0
+total = 0
+
+with torch.no_grad():
+    for images, labels in testloader:
+        images, labels = images.to(device), labels.to(device)
+        outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted == labels).sum().item()
+
+print(f"Accuracy of the model on the test images: {100 * correct / total}%")
+
+
+import matplotlib.pyplot as plt
+
+model.eval()
+
+# Get a batch of test images and labels
+dataiter = iter(testloader)
+images, labels = next(dataiter)
+
+# Make predictions
+with torch.no_grad():
+    outputs = model(images.to(device))
+    _, predicted = torch.max(outputs, 1)
+
+# Function to unnormalize and plot an image
+def imshow(img):
+    img = img / 2 + 0.5  # unnormalize
+    plt.imshow(np.transpose(img.numpy(), (1, 2, 0)))
+
+classes = trainset.classes[0:3]
+fig = plt.figure(figsize=(10, 4))
+for idx in range(3):
+    ax = fig.add_subplot(1, 3, idx+1, xticks=[], yticks=[])
+    imshow(images[idx])
+    ax.set_title(f"True: {classes[labels[idx]]}\nPredicted: {classes[predicted[idx]]}")
+
+plt.show()
+
+
+Questions
+Describe the techniques used to balance the dataset.
+
+
+Train both networks with balanced and unbalanced datasets. How does it affect the predictions? Display a confusion matrix for each case.
+
+
+Generate graphs to compare the performance of the implemented networks on the different datasets, focusing on metrics such as training/validation loss, sensitivity, specificity, f1-measure ...

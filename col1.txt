@@ -156,7 +156,132 @@ Hint:
 **Questions:**
 
 1. What is the output matrix after applying the convolution?
+
+Input Matrix:
+$
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+7 & 8 & 9
+\end{bmatrix}
+$
+Kernel:
+$
+\begin{bmatrix}
+-1 &0 &1 \\
+-2 &0 &2 \\
+-1 &0 &1
+\end{bmatrix}
+$
+
+Hint:
+
+* $Output \ Size = [\frac{Input \ Size \ - \ Kernel \ Size\ +\ 2 \ \times \ Padding}{Stride}] + 1$
+
+**Questions:**
+
+1. What is the output matrix after applying the convolution?
+
+Given
+- Input: 3×3
+- Kernel: 3×3
+- Padding: p = 0
+- Stride: s = 1
+
+1) Compute the output size
+Using the formula in your PDF:
+
+Output Size = [(Input Size − Kernel Size + 2·Padding) / Stride] + 1
+
+Substitute values:
+Output Size = [(3 − 3 + 2·0) / 1] + 1
+            = [0 / 1] + 1
+            = 1
+
+So the output is a 1×1 matrix.
+
+2) Apply the kernel on the only valid window
+Since input and kernel are both 3×3, there is exactly one patch: the whole input.
+
+Input X:
+[ [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9] ]
+
+Kernel K:
+[ [-1, 0, 1],
+  [-2, 0, 2],
+  [-1, 0, 1] ]
+
+We perform element-wise multiplication and sum the results (this is the “convolution” used in most DL code, i.e., cross-correlation, consistent with:
+np.sum(input_slice * kernel)):
+
+1·(-1) + 2·0 + 3·1
++ 4·(-2) + 5·0 + 6·2
++ 7·(-1) + 8·0 + 9·1
+
+Compute each row:
+
+Row 1: 1·(-1) + 2·0 + 3·1 = -1 + 0 + 3 = 2
+Row 2: 4·(-2) + 5·0 + 6·2 = -8 + 0 + 12 = 4
+Row 3: 7·(-1) + 8·0 + 9·1 = -7 + 0 + 9 = 2
+
+Total: 2 + 4 + 2 = 8
+
+Output matrix:
+[ [8] ]
+
+
 2. Describe the effect of the kernel on the input image. What feature does this kernel help to detect?
+
+It computes the left-to-right intensity gradient by subtracting values on the left side of the window and adding values on the right side, producing strong responses where the image changes sharply horizontally.
+
+Feature detected: Vertical edges (vertical contours/borders) — i.e., areas with strong horizontal intensity changes.
+
+
+import numpy as np
+
+#Code implementation in order to check that the calculation of the convolution is correct
+
+# Input matrix and kernel
+X = np.array([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+], dtype=float)
+
+K = np.array([
+    [-1,  0,  1],
+    [-2,  0,  2],
+    [-1,  0,  1]
+], dtype=float)
+
+def conv2d_no_padding_stride1(X: np.ndarray, K: np.ndarray) -> np.ndarray:
+    """
+    2D convolution as used in many CNN implementations (cross-correlation):
+    output[i,j] = sum( X[i:i+kh, j:j+kw] * K )
+    No padding, stride=1.
+    """
+    h, w = X.shape
+    kh, kw = K.shape
+
+    out_h = (h - kh) + 1
+    out_w = (w - kw) + 1
+
+    Y = np.zeros((out_h, out_w), dtype=float)
+
+    for i in range(out_h):
+        for j in range(out_w):
+            patch = X[i:i+kh, j:j+kw]
+            Y[i, j] = np.sum(patch * K)
+
+    return Y
+
+Y = conv2d_no_padding_stride1(X, K)
+
+print("Input (X):\n", X)
+print("\nKernel (K):\n", K)
+print("\nOutput (Y) with no padding and stride=1:\n", Y)
 
 
 ## 2) Apply a 2D convolution operation with padding (1 layer of zero padding) and a stride of 1.
@@ -181,7 +306,151 @@ $
 **Questions:**
 
 1. What is the output matrix after applying the convolution with padding?
+
+
+Given
+- Input: 3×3
+- Kernel: 3×3
+- Padding: p = 1 (one layer of zeros)
+- Stride: s = 1
+
+1) Compute the output size (same formula as in your PDF)
+
+Output Size = [(Input Size − Kernel Size + 2p) / s] + 1
+
+Substitute values:
+Output Size = [(3 − 3 + 2·1) / 1] + 1
+            = [2] + 1
+            = 3
+
+So the output is a 3×3 matrix.
+
+2) Pad the input (zero-padding with 1 layer)
+
+Original input X:
+[
+  [1, 0, 2],
+  [3, 0, 4],
+  [5, 6, 0]
+]
+
+Padded input X_pad (size 5×5):
+[
+  [0, 0, 0, 0, 0],
+  [0, 1, 0, 2, 0],
+  [0, 3, 0, 4, 0],
+  [0, 5, 6, 0, 0],
+  [0, 0, 0, 0, 0]
+]
+
+Kernel K:
+[
+  [0,  1, 0],
+  [1, -4, 1],
+  [0,  1, 0]
+]
+
+We use the same operation as your notebook: cross-correlation
+Y[i,j] = Σ(patch ⊙ K)
+(i.e., np.sum(patch * K))
+
+Because this kernel has zeros on corners, each output is equivalent to:
+Y = (up + down + left + right) − 4·(center)
+
+3) Compute each output cell (3×3)
+
+Row 1
+- Y[0,0]: center=1, neighbors up=0, down=3, left=0, right=0
+  0 + 3 + 0 + 0 − 4·1 = 3 − 4 = -1
+
+- Y[0,1]: center=0, neighbors up=0, down=0, left=1, right=2
+  0 + 0 + 1 + 2 − 4·0 = 3
+
+- Y[0,2]: center=2, neighbors up=0, down=4, left=0, right=0
+  0 + 4 + 0 + 0 − 4·2 = 4 − 8 = -4
+
+Row 2
+- Y[1,0]: center=3, neighbors up=1, down=5, left=0, right=0
+  1 + 5 + 0 + 0 − 4·3 = 6 − 12 = -6
+
+- Y[1,1]: center=0, neighbors up=0, down=6, left=3, right=4
+  0 + 6 + 3 + 4 − 4·0 = 13
+
+- Y[1,2]: center=4, neighbors up=2, down=0, left=0, right=0
+  2 + 0 + 0 + 0 − 4·4 = 2 − 16 = -14
+
+Row 3
+- Y[2,0]: center=5, neighbors up=3, down=0, left=0, right=6
+  3 + 0 + 0 + 6 − 4·5 = 9 − 20 = -11
+
+- Y[2,1]: center=6, neighbors up=0, down=0, left=5, right=0
+  0 + 0 + 5 + 0 − 4·6 = 5 − 24 = -19
+
+- Y[2,2]: center=0, neighbors up=4, down=0, left=6, right=0
+  4 + 0 + 6 + 0 − 4·0 = 10
+
+Output matrix
+[
+  [-1,   3,  -4],
+  [-6,  13, -14],
+  [-11, -19, 10]
+]
+
 2. How does padding affect the size of the output compared to the input?
+
+With padding p = 1 and stride s = 1 for a 3×3 kernel, the output becomes 3×3 (same spatial size as the original input).
+Padding adds a border of zeros so the kernel can be applied centered on edge pixels, preventing the output from shrinking.
+
+
+import numpy as np
+
+
+# Input matrix and kernel
+X = np.array([
+    [1, 0, 2],
+    [3, 0, 4],
+    [5, 6, 0]
+], dtype=float)
+
+K = np.array([
+    [0,  1, 0],
+    [1, -4, 1],
+    [0,  1, 0]
+], dtype=float)
+
+def conv2d_padding_stride1(X: np.ndarray, K: np.ndarray, padding: int = 1) -> np.ndarray:
+    """
+    2D convolution as used in many CNN implementations (cross-correlation):
+    output[i,j] = sum( X_pad[i:i+kh, j:j+kw] * K )
+    Padding is zero-padding, stride=1.
+    """
+    h, w = X.shape
+    kh, kw = K.shape
+
+    # Zero-pad the input
+    X_pad = np.pad(X, ((padding, padding), (padding, padding)), mode='constant', constant_values=0)
+
+    # Output dimensions (stride=1)
+    out_h = (h + 2 * padding - kh) + 1
+    out_w = (w + 2 * padding - kw) + 1
+
+    Y = np.zeros((out_h, out_w), dtype=float)
+
+    # Sliding window
+    for i in range(out_h):
+        for j in range(out_w):
+            patch = X_pad[i:i+kh, j:j+kw]
+            Y[i, j] = np.sum(patch * K)
+
+    return Y, X_pad
+
+Y, X_pad = conv2d_padding_stride1(X, K, padding=1)
+
+print("Input (X):\n", X)
+print("\nKernel (K):\n", K)
+print("\nPadded Input (X_pad) with padding=1:\n", X_pad)
+print("\nOutput (Y) with padding=1 and stride=1:\n", Y)
+
 
 
 ## 3) Apply a 2D convolution operation with a stride of 2 and no padding.
@@ -207,8 +476,107 @@ $
 **Questions:**
 
 1. What is the output matrix after applying the convolution with a stride of 2?
+
+
+Step-by-step: 2D convolution (no padding, stride = 2)
+
+Given
+- Input: 4×4
+- Kernel: 2×2
+- Padding: p = 0
+- Stride: s = 2
+
+1) Compute the output size (same formula style as in your notebook/PDF)
+
+Output Size = ⌊(Input Size − Kernel Size + 2p) / s⌋ + 1
+
+Substitute values:
+Output Size = ⌊(4 − 2 + 2·0) / 2⌋ + 1
+            = ⌊2 / 2⌋ + 1
+            = 1 + 1
+            = 2
+
+So the output is a 2×2 matrix.
+
+2) Apply the kernel with stride 2 (cross-correlation like np.sum(patch * K))
+
+Input X:
+[
+  [1, 1, 2, 4],
+  [2, 2, 3, 5],
+  [3, 3, 1, 0],
+  [4, 4, 0, 0]
+]
+
+Kernel K:
+[
+  [ 1, -1],
+  [-1,  1]
+]
+
+With stride = 2, the kernel’s top-left corner moves by 2 cells each time, so patches start at:
+(0,0), (0,2)
+(2,0), (2,2)
+
+We compute each output entry as:
+Y[i,j] = Σ(patch ⊙ K)
+
+Y[0,0] using patch starting at (0,0)
+Patch:
+[
+  [1, 1],
+  [2, 2]
+]
+Computation:
+1·1 + 1·(-1) + 2·(-1) + 2·1
+= 1 - 1 - 2 + 2
+= 0
+
+Y[0,1] using patch starting at (0,2)
+Patch:
+[
+  [2, 4],
+  [3, 5]
+]
+Computation:
+2·1 + 4·(-1) + 3·(-1) + 5·1
+= 2 - 4 - 3 + 5
+= 0
+
+Y[1,0] using patch starting at (2,0)
+Patch:
+[
+  [3, 3],
+  [4, 4]
+]
+Computation:
+3·1 + 3·(-1) + 4·(-1) + 4·1
+= 3 - 3 - 4 + 4
+= 0
+
+Y[1,1] using patch starting at (2,2)
+Patch:
+[
+  [1, 0],
+  [0, 0]
+]
+Computation:
+1·1 + 0·(-1) + 0·(-1) + 0·1
+= 1
+
+Output matrix
+[
+  [0, 0],
+  [0, 1]
+]
+
+
+
 2. Explain how changing the stride of the convolution affects the size and the representation of the output.
 
+Increasing the stride makes the kernel move in larger steps, so that implies computing fewer outputs, which also implies that the output becomes smaller (downsampling).
+
+Because we skip positions, the output is a coarser representation: less overlap between patches, less spatial detail, and some fine patterns may be missed.
 
 # **Exercise 2: 3D Convolution Operation**
 
@@ -230,8 +598,153 @@ Constraints:
 **Questions:**
 
 1. What kernel size, stride, and padding settings should be used for each of the two convolutional layers to achieve the 2x2x2 output volume from the 8x8x8 input volume?
+
+
+
+We use the (per-dimension) formula:
+
+Output = ⌊(n + 2p − f) / s + 1⌋
+
+Where:
+- n = input size (same for width/height/depth because the volume is cubic)
+- f = cubic kernel size (f×f×f)
+- p = padding (zeros)
+- s = stride (same in all 3 directions)
+
+1) One valid set of parameters (Layer 1 and Layer 2)
+
+Layer 1
+Choose: kernel f1 = 3, stride s1 = 2, padding p1 = 1
+
+n1 = ⌊(8 + 2·1 − 3) / 2 + 1⌋
+   = ⌊7 / 2 + 1⌋
+   = ⌊3.5 + 1⌋
+   = 4
+
+So after layer 1: 8×8×8 → 4×4×4
+
+Layer 2
+Choose the same again: kernel f2 = 3, stride s2 = 2, padding p2 = 1
+
+n2 = ⌊(4 + 2·1 − 3) / 2 + 1⌋
+   = ⌊3 / 2 + 1⌋
+   = ⌊1.5 + 1⌋
+   = 2
+
+So after layer 2: 4×4×4 → 2×2×2
+
+Answer (Set A):
+- Layer 1: f = 3, s = 2, p = 1
+- Layer 2: f = 3, s = 2, p = 1
+
 2. Is there more than one combination of settings that could achieve the target output volume? If so, provide an alternative set of parameters.
 
+
+
+Yes, for example:
+
+Alternative Set (Set B)
+
+Use no padding and a 2×2×2 kernel with stride 2:
+
+Layer 1: f1 = 2, s1 = 2, p1 = 0
+
+n1 = ⌊(8 + 0 − 2) / 2 + 1⌋
+   = ⌊6 / 2 + 1⌋
+   = 4
+
+Layer 2: f2 = 2, s2 = 2, p2 = 0
+
+n2 = ⌊(4 + 0 − 2) / 2 + 1⌋
+   = ⌊2 / 2 + 1⌋
+   = 2
+
+Answer (Set B):
+- Layer 1: f = 2, s = 2, p = 0
+- Layer 2: f = 2, s = 2, p = 0
+
+
+import numpy as np
+
+def conv3d(X: np.ndarray, K: np.ndarray, stride: int, padding: int) -> np.ndarray:
+    """
+    3D convolution as used in many DL implementations (cross-correlation):
+    Y[i,j,k] = sum( X_patch * K )
+    with cubic kernel and same stride in all 3 directions.
+    """
+    # Basic checks for cube constraints
+    assert X.ndim == 3, "Input X must be a 3D volume."
+    assert K.ndim == 3, "Kernel K must be a 3D volume."
+    assert K.shape[0] == K.shape[1] == K.shape[2], "Kernel must be cubic (f x f x f)."
+    assert stride >= 1 and padding >= 0
+
+    n = X.shape[0]
+    assert X.shape[1] == n and X.shape[2] == n, "Input must be cubic (n x n x n)."
+
+    f = K.shape[0]
+
+    # Zero padding
+    Xp = np.pad(X, pad_width=((padding, padding), (padding, padding), (padding, padding)),
+                mode="constant", constant_values=0)
+
+    # Output size per dimension (floor like the PDF)
+    out_n = ((n + 2 * padding - f) // stride) + 1
+    Y = np.zeros((out_n, out_n, out_n), dtype=float)
+
+    # Slide the kernel
+    for i in range(out_n):
+        for j in range(out_n):
+            for k in range(out_n):
+                a, b, c = i * stride, j * stride, k * stride
+                patch = Xp[a:a+f, b:b+f, c:c+f]
+                Y[i, j, k] = np.sum(patch * K)
+
+    return Y
+
+def output_size_1d(n: int, f: int, p: int, s: int) -> int:
+    """Per-dimension output size: floor((n + 2p - f)/s + 1)."""
+    return ((n + 2 * p - f) // s) + 1
+
+# --------- Choose a parameter set and verify shapes ---------
+
+# Dummy 8x8x8 input (values do not matter for shape verification)
+X = np.random.rand(8, 8, 8)
+
+# ===== Set A (example solution): (f=3, s=2, p=1) then (f=3, s=2, p=1) =====
+f1, s1, p1 = 3, 2, 1
+f2, s2, p2 = 3, 2, 1
+
+K1 = np.ones((f1, f1, f1), dtype=float)
+K2 = np.ones((f2, f2, f2), dtype=float)
+
+n1 = output_size_1d(8, f1, p1, s1)
+n2 = output_size_1d(n1, f2, p2, s2)
+
+Y1 = conv3d(X, K1, stride=s1, padding=p1)
+Y2 = conv3d(Y1, K2, stride=s2, padding=p2)
+
+print("Set A parameters:")
+print(f" Layer 1: f={f1}, s={s1}, p={p1}  -> expected size: {n1}x{n1}x{n1}, got: {Y1.shape}")
+print(f" Layer 2: f={f2}, s={s2}, p={p2}  -> expected size: {n2}x{n2}x{n2}, got: {Y2.shape}")
+print("Final output volume (Set A) shape:", Y2.shape)
+
+# ===== Set B (alternative): (f=2, s=2, p=0) then (f=2, s=2, p=0) =====
+f1b, s1b, p1b = 2, 2, 0
+f2b, s2b, p2b = 2, 2, 0
+
+K1b = np.ones((f1b, f1b, f1b), dtype=float)
+K2b = np.ones((f2b, f2b, f2b), dtype=float)
+
+n1b = output_size_1d(8, f1b, p1b, s1b)
+n2b = output_size_1d(n1b, f2b, p2b, s2b)
+
+Y1b = conv3d(X, K1b, stride=s1b, padding=p1b)
+Y2b = conv3d(Y1b, K2b, stride=s2b, padding=p2b)
+
+print("\nSet B parameters (aalternative):")
+print(f" Layer 1: f={f1b}, s={s1b}, p={p1b} -> expected size: {n1b}x{n1b}x{n1b}, got: {Y1b.shape}")
+print(f" Layer 2: f={f2b}, s={s2b}, p={p2b} -> expected size: {n2b}x{n2b}x{n2b}, got: {Y2b.shape}")
+print("Final output volume (Set B) shape:", Y2b.shape)
 
 
 ## 3) Practical Case
@@ -498,38 +1011,320 @@ As you can see in the Conv3DNet class, comments indicating the output size for e
 
 Finally, train your new network and discuss the results.
 
-
-
 class ModifiedConv3DNet(nn.Module):
     def __init__(self):
         super(ModifiedConv3DNet, self).__init__()
         # Input: [batch_size, 1, 24, 24, 24]
         self.features = nn.Sequential(
-
-            nn.Conv3d(1, , kernel_size=, stride=, padding=),   #
-            nn.ReLU(),dd
-            nn.MaxPool3d(),                                    #
-
-            nn.Conv3d(, , kernel_size=, stride=, padding=),    #
+            nn.Conv3d(1, 32, kernel_size=3, stride=1, padding=1),   # Output: [batch_size, 32, 24, 24, 24]
             nn.ReLU(),
-            nn.MaxPool3d(),                                    #
+            nn.MaxPool3d(kernel_size=2, stride=2),                  # Output: [batch_size, 32, 12, 12, 12]
 
-            nn.Conv3d(, , kernel_size=, stride=, padding=),    #
+            nn.Conv3d(32, 64, kernel_size=3, stride=1, padding=1),  # Output: [batch_size, 64, 12, 12, 12]
             nn.ReLU(),
-            nn.MaxPool3d()                                     #
+            nn.MaxPool3d(kernel_size=2, stride=2),                  # Output: [batch_size, 64, 6, 6, 6]
+
+            nn.Conv3d(64, 128, kernel_size=3, stride=1, padding=1), # Output: [batch_size, 128, 6, 6, 6]
+            nn.ReLU(),
+            nn.MaxPool3d(kernel_size=3, stride=1)                   # Output: [batch_size, 128, 4, 4, 4]
         )
+
+        self.Flatten = torch.nn.Flatten()                           # Output: [batch_size, 128*4*4*4] = [batch_size, 8192]
 
         self.classifier = nn.Sequential(
-            nn.Linear(, ),                                     #
+            nn.Linear(128 * 4 * 4 * 4, 512),                        # Output: [batch_size, 512]
             nn.ReLU(),
             nn.Dropout(),
-            nn.Linear(, NUM_CLASSES)                           #
+            nn.Linear(512, NUM_CLASSES)                             # Output: [batch_size, NUM_CLASSES]
         )
-
-        self.Flatten = torch.nn.Flatten()
 
     def forward(self, x):
         x = self.features(x)
         x = self.Flatten(x)
         x = self.classifier(x)
         return F.log_softmax(x, dim=1)
+
+
+# Train the modified network (assumes train_loader/test_loader already exist)
+model = ModifiedConv3DNet().to(device)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+criterion = nn.CrossEntropyLoss()
+
+EPOCHS = 10
+for epoch in range(EPOCHS):
+    model.train()
+    running_loss = 0.0
+
+    for data, target in train_loader:
+        data = data.unsqueeze(1)                                   # [batch_size, 1, 24, 24, 24]
+        data = data.to(device).float()
+        target = target.to(device)
+
+        optimizer.zero_grad()
+        output = model(data)                                       # [batch_size, NUM_CLASSES]
+        loss = criterion(output, torch.max(target, 1)[1])          # target indices from one-hot
+        loss.backward()
+        optimizer.step()
+
+        running_loss += loss.item()
+
+    avg_loss = running_loss / max(1, len(train_loader))
+    print(f"Epoch {epoch+1}/{EPOCHS} - Loss: {avg_loss:.4f}")
+
+
+# -----------------------------
+# Evaluate (accuracy + confusion matrix)
+# -----------------------------
+from sklearn.metrics import confusion_matrix
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+model.eval()
+all_preds = []
+all_targets = []
+
+with torch.no_grad():
+    for data, target in test_loader:
+        data = data.unsqueeze(1)                                   # [batch_size, 1, 24, 24, 24]
+        data = data.to(device).float()
+        target = target.to(device)
+
+        output = model(data)                                       # [batch_size, NUM_CLASSES]
+        pred = output.argmax(dim=1)                                # predicted class index
+        all_preds.extend(pred.cpu().numpy())
+        all_targets.extend(torch.max(target, 1)[1].cpu().numpy())   # true class index
+
+all_preds = np.array(all_preds)
+all_targets = np.array(all_targets)
+
+acc = (all_preds == all_targets).mean()
+print(f"Test Accuracy: {acc*100:.2f}%")
+
+cm = confusion_matrix(all_targets, all_preds)
+plt.figure(figsize=(10, 10))
+sns.heatmap(cm, annot=True, fmt="d",
+            xticklabels=list(CLASS_MAP.values()),
+            yticklabels=list(CLASS_MAP.values()))
+plt.title("Confusion Matrix (ModifiedConv3DNet)")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
+
+
+# ✅ Sanity-check cell: verifies EXACTLY that the feature extractor output is [32, 128, 4, 4, 4]
+# (and also checks it for any batch_size you choose)
+
+import torch
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = ModifiedConv3DNet().to(device)
+model.eval()
+
+def assert_exact_feature_shape(batch_size: int = 32):
+    with torch.no_grad():
+        x = torch.zeros((batch_size, 1, 24, 24, 24), device=device, dtype=torch.float32)
+        y = model.features(x)
+
+    expected = (batch_size, 128, 4, 4, 4)
+    got = tuple(y.shape)
+
+    print("Expected features shape:", expected)
+    print("Got features shape     :", got)
+
+    assert got == expected, f"❌ Shape mismatch. Expected {expected}, got {got}"
+    print("✅ EXACT match: features output shape is [batch_size, 128, 4, 4, 4].")
+
+# Run the exact check for the required batch_size=32
+assert_exact_feature_shape(32)
+
+# Optional: also verify it works for a different batch size
+# assert_exact_feature_shape(5)
+
+
+# ✅ Single independent verification cell for ModifiedConv3DNet
+# It checks:
+# 1) Layer-by-layer output shapes (must end at [batch_size, 128, 4, 4, 4])
+# 2) Flatten size (must be 8192)
+# 3) Final logits/probability shape (must be [batch_size, NUM_CLASSES])
+# 4) Training loop compatibility with one-hot targets (like your notebook)
+# 5) Quick evaluation pass on 1 batch + confusion matrix sanity (if sklearn/seaborn available)
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+
+import numpy as np
+
+# ----------------------------
+# Pre-check: required globals exist
+# ----------------------------
+required_globals = ["ModifiedConv3DNet", "NUM_CLASSES", "train_loader", "test_loader", "CLASS_MAP"]
+missing = [g for g in required_globals if g not in globals()]
+assert len(missing) == 0, f"Missing required objects in the notebook namespace: {missing}"
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# ----------------------------
+# Instantiate model
+# ----------------------------
+model = ModifiedConv3DNet().to(device)
+model.eval()
+
+# ----------------------------
+# 1) Shape tracing with forward hooks
+# ----------------------------
+shape_log = []
+
+def _hook(name):
+    def fn(module, inp, out):
+        # inp is a tuple; out may be Tensor or tuple
+        in_shape = tuple(inp[0].shape) if isinstance(inp, tuple) and torch.is_tensor(inp[0]) else None
+        out_shape = tuple(out.shape) if torch.is_tensor(out) else str(type(out))
+        shape_log.append((name, module.__class__.__name__, in_shape, out_shape))
+    return fn
+
+hooks = []
+for name, layer in model.features.named_children():
+    hooks.append(layer.register_forward_hook(_hook(f"features[{name}]")))
+
+# Also hook flatten and classifier layers for complete tracing
+hooks.append(model.Flatten.register_forward_hook(_hook("Flatten")))
+for name, layer in model.classifier.named_children():
+    hooks.append(layer.register_forward_hook(_hook(f"classifier[{name}]")))
+
+# Run one dry forward
+batch_size = 32
+x = torch.zeros((batch_size, 1, 24, 24, 24), device=device, dtype=torch.float32)
+with torch.no_grad():
+    y = model(x)
+
+# Remove hooks
+for h in hooks:
+    h.remove()
+
+# Print trace
+print("---- Layer-by-layer shape trace ----")
+for name, cls, ins, outs in shape_log:
+    print(f"{name:<18} | {cls:<12} | in: {ins} -> out: {outs}")
+
+# ----------------------------
+# 2) Assert the exact required feature shape
+# ----------------------------
+with torch.no_grad():
+    feats = model.features(x)
+
+expected_feats = (batch_size, 128, 4, 4, 4)
+got_feats = tuple(feats.shape)
+print("\nExpected features shape:", expected_feats)
+print("Got features shape     :", got_feats)
+assert got_feats == expected_feats, f"❌ features output mismatch. Expected {expected_feats}, got {got_feats}"
+print("✅ features output shape is EXACT.")
+
+# ----------------------------
+# 3) Assert Flatten size is 8192
+# ----------------------------
+with torch.no_grad():
+    flat = model.Flatten(feats)
+
+expected_flat = (batch_size, 128 * 4 * 4 * 4)
+got_flat = tuple(flat.shape)
+print("\nExpected flatten shape:", expected_flat)
+print("Got flatten shape     :", got_flat)
+assert got_flat == expected_flat, f"❌ flatten mismatch. Expected {expected_flat}, got {got_flat}"
+print("✅ flatten size is EXACT (8192).")
+
+# ----------------------------
+# 4) Assert classifier output shape is [batch_size, NUM_CLASSES]
+# ----------------------------
+with torch.no_grad():
+    logits = model.classifier(flat)
+
+expected_logits = (batch_size, int(NUM_CLASSES))
+got_logits = tuple(logits.shape)
+print("\nExpected logits shape :", expected_logits)
+print("Got logits shape      :", got_logits)
+assert got_logits == expected_logits, f"❌ classifier output mismatch. Expected {expected_logits}, got {got_logits}"
+print("✅ classifier output shape is EXACT.")
+
+# ----------------------------
+# 5) Verify training-loop compatibility (one-hot targets -> indices)
+#    Run a single optimization step on 1 batch (fast sanity check)
+# ----------------------------
+model.train()
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
+criterion = nn.CrossEntropyLoss()
+
+data, target = next(iter(train_loader))
+data = data.unsqueeze(1).to(device).float()            # [B, 1, 24, 24, 24]
+target = target.to(device)                             # one-hot, dtype long in your notebook
+
+# Convert one-hot -> class indices (same as your code)
+target_idx = torch.max(target, 1)[1]
+
+optimizer.zero_grad()
+out = model(data)                                      # log_softmax outputs
+loss = criterion(out, target_idx)
+loss.backward()
+optimizer.step()
+
+print(f"\n✅ One training step OK. Loss: {loss.item():.4f}")
+
+# ----------------------------
+# 6) Quick evaluation sanity on 1 test batch + optional confusion matrix
+# ----------------------------
+model.eval()
+with torch.no_grad():
+    data_t, target_t = next(iter(test_loader))
+    data_t = data_t.unsqueeze(1).to(device).float()
+    target_t = target_t.to(device)
+    target_t_idx = torch.max(target_t, 1)[1]
+
+    out_t = model(data_t)
+    pred_t = out_t.argmax(dim=1)
+
+acc_batch = (pred_t == target_t_idx).float().mean().item()
+print(f"✅ One test-batch accuracy (sanity): {acc_batch*100:.2f}%")
+
+# Confusion matrix (optional, will run if sklearn+seaborn are installed)
+try:
+    from sklearn.metrics import confusion_matrix
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    # Build confusion matrix over a small subset (to keep it fast)
+    all_preds = []
+    all_targets = []
+    max_batches = 10
+
+    with torch.no_grad():
+        for b, (d, t) in enumerate(test_loader):
+            if b >= max_batches:
+                break
+            d = d.unsqueeze(1).to(device).float()
+            t = t.to(device)
+            t_idx = torch.max(t, 1)[1]
+            o = model(d)
+            p = o.argmax(dim=1)
+
+            all_preds.extend(p.cpu().numpy())
+            all_targets.extend(t_idx.cpu().numpy())
+
+    cm = confusion_matrix(np.array(all_targets), np.array(all_preds))
+
+    plt.figure(figsize=(8, 8))
+    sns.heatmap(
+        cm, annot=True, fmt="d",
+        xticklabels=list(CLASS_MAP.values()),
+        yticklabels=list(CLASS_MAP.values())
+    )
+    plt.title(f"Confusion Matrix (first {max_batches} test batches)")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.show()
+
+    print("✅ Confusion matrix plotted (subset).")
+
+except Exception as e:
+    print(f"(Optional) Confusion matrix skipped: {e}")
