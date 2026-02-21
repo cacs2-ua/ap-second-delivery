@@ -1,0 +1,1648 @@
+---- AP SECOND DELIVERY -----
+
+
+
+Aprendizaje Profundo
+Convolutional Neural Networks
+
+Aprendizaje Profundo
+Summary
+From Shallow to Deep Neural Networks
+Convolutional Neural Networks
+Table of contents
+Objectives
+1. First session of this block (6th February 2026)
+Contents to prepare before (online)
+Contents for the presential class
+2. Second session of this block (13th February 2026)
+Contents to prepare before (online)
+Contents for the presential class
+Biblography
+Textbooks
+Webpages
+Others
+Few and Zero Shot Learning
+Recurrent Networks
+Fine-tuning and model compression
+Deep Reinforcement Learning
+Self-Supervised Learning
+Convolutional Neural Networks (CNN)¶
+Convolutional Neural Networks (CNNs) are specifically tailored for computer vision tasks (classification, detection, segmentation, synthesis, etc.) (See Chapter 10.1 [FDL2023]). In 1989, LeCun proposed LeNet, a CNN for recognizing handwritten digits in images that was trained by backpropagation. It was widely recognised as the first CNN model achievieng outstanding results matching the performance of support vector machines, then a dominant approach in supervised learning. It laid the foundation for modern CNN architectures and demonstrated the power of convolutional layers and their ability to learn spatial hierarchies of features in an image, a principle that remains central in modern CNNs used for more complex tasks in computer vision.
+
+However, CNNs got popular in 2012 when outperformed other models at ImageNet Challenge Competition in object classification/detection (here you can see a visualization hierarchy of 1000 classes from ImageNet). Specifically, the first CNN to achieve a breakthrough in the ImageNet Challenge was AlexNet (designed by Alex Krizhevsky, Ilya Sutskever, and Geoffrey Hinton). It significantly outperformed the other competitors in the 2012 challenge, reducing the error rate by a large margin compared to traditional image classification methods (see here the results.
+
+Today, the results of the DNN (including CNNs and others as Visual Transformers) in ImageNet Challege Competion are achieving amazing results (more than 95% Top-1 accuracy).
+
+
+
+Objectives¶
+O1. Know and implement the fundamental components that conform a CNN.
+O2. Learn about modern convolutional networks that have set milestones in design aspects and how to train them
+1. First session of this block (6th February 2026)¶
+Contents to prepare before (online)¶
+The contents of this first session are related to the objetive 1, being the following:
+
+1.1 Introduction¶
+
+[This part can take about 1 hour 🕒️ of personal working.]
+Convolutions
+
+Convolution (or cross-correlation operation): [DDL23, Section 7.1.3]
+
+7.1.3. Convolutions¶
+Let’s briefly review why (7.1.3) is called a convolution. In mathematics, the convolution between two functions (Rudin, 1973), say 
+ is defined as
+
+(7.1.4)
+That is, we measure the overlap between 
+ and 
+ when one function is “flipped” and shifted by 
+. Whenever we have discrete objects, the integral turns into a sum. For instance, for vectors from the set of square-summable infinite-dimensional vectors with index running over 
+ we obtain the following definition:
+
+(7.1.5)
+ 
+For two-dimensional tensors, we have a corresponding sum with indices 
+ for 
+ and 
+ for 
+, respectively:
+
+(7.1.6)
+  
+ 
+This looks similar to (7.1.3), with one major difference. Rather than using 
+, we are using the difference instead. Note, though, that this distinction is mostly cosmetic since we can always match the notation between (7.1.3) and (7.1.6). Our original definition in (7.1.3) more properly describes a cross-correlation. We will come back to this in the following section
+
+Back
+Image Kernels
+Explained Visually
+ 
+By Victor Powell
+
+An image kernel is a small matrix used to apply effects like the ones you might find in Photoshop or Gimp, such as blurring, sharpening, outlining or embossing. They're also used in machine learning for 'feature extraction', a technique for determining the most important portions of an image. In this context the process is referred to more generally as "convolution" (see: convolutional neural networks.)
+
+To see how they work, let's start by inspecting a black and white image. The matrix on the left contains numbers, between 0 and 255, which each correspond to the brightness of one pixel in a picture of a face. The large, granulated picture has been blown up to make it easier to see; the last image is the "real" size.
+
+
+Let's walk through applying the following 3x3 sharpen kernel to the image of a face from above.
+
+
+
+sharpen
+0
+-1
+0
+-1
+5
+-1
+0
+-1
+0
+)
+(
+Below, for each 3x3 block of pixels in the image on the left, we multiply each pixel by the corresponding entry of the kernel and then take the sum. That sum becomes a new pixel in the image on the right. Hover over a pixel on either image to see how its value is computed.
+
+kernel:
+input image
+output image
+139
+192
+190
+139
+191
+197
+149
+191
+190
+× 0
+× -1
+× 0
+× -1
+× 5
+× -1
+× 0
+× -1
+× 0
++
++
++
++
++
++
++
++
+236
+=
+(
+)
+
+sharpen
+One subtlety of this process is what to do along the edges of the image. For example, the top left corner of the input image only has three neighbors. One way to fix this is to extend the edge values out by one in the original image while keeping our new image the same size. In this demo, we've instead ignored those values by making them black.
+
+Here's a playground were you can select different kernel matrices and see how they effect the original image or build your own kernel. You can also upload your own image or use live video if your browser supports it.
+
+0
+-1
+0
+-1
+5
+-1
+0
+-1
+0
+
+sharpen
+Ningún archivo seleccionadoLive video
+
+The sharpen kernel emphasizes differences in adjacent pixel values. This makes the image look more vivid.
+
+For more, have a look at Gimp's excellent documentation on using Image kernel's. You can also apply your own custom filters in Photoshop by going to Filter -> Other -> Custom...
+
+For more explanations, visit the Explained Visually project homepage.
+
+Or subscribe to our mailing list.
+
+Email address
+
+
+
+Examples of kernels: image kernels
+
+Why CNN? [UDL2023, Section 10 at beginning],[DDL23, Section 7.1], [DDL23, Section 7.1.2].
+
+
+
+
+7.1. From Fully Connected Layers to Convolutions¶
+ Colab [pytorch]Open the notebook in Colab
+ SageMaker Studio LabOpen the notebook in SageMaker Studio Lab
+To this day, the models that we have discussed so far remain appropriate options when we are dealing with tabular data. By tabular, we mean that the data consist of rows corresponding to examples and columns corresponding to features. With tabular data, we might anticipate that the patterns we seek could involve interactions among the features, but we do not assume any structure a priori concerning how the features interact.
+
+Sometimes, we truly lack the knowledge to be able to guide the construction of fancier architectures. In these cases, an MLP may be the best that we can do. However, for high-dimensional perceptual data, such structureless networks can grow unwieldy.
+
+For instance, let’s return to our running example of distinguishing cats from dogs. Say that we do a thorough job in data collection, collecting an annotated dataset of one-megapixel photographs. This means that each input to the network has one million dimensions. Even an aggressive reduction to one thousand hidden dimensions would require a fully connected layer characterized by 
+ parameters. Unless we have lots of GPUs, a talent for distributed optimization, and an extraordinary amount of patience, learning the parameters of this network may turn out to be infeasible.
+
+A careful reader might object to this argument on the basis that one megapixel resolution may not be necessary. However, while we might be able to get away with one hundred thousand pixels, our hidden layer of size 1000 grossly underestimates the number of hidden units that it takes to learn good representations of images, so a practical system will still require billions of parameters. Moreover, learning a classifier by fitting so many parameters might require collecting an enormous dataset. And yet today both humans and computers are able to distinguish cats from dogs quite well, seemingly contradicting these intuitions. That is because images exhibit rich structure that can be exploited by humans and machine learning models alike. Convolutional neural networks (CNNs) are one creative way that machine learning has embraced for exploiting some of the known structure in natural images.
+
+7.1.1. Invariance
+Imagine that we want to detect an object in an image. It seems reasonable that whatever method we use to recognize objects should not be overly concerned with the precise location of the object in the image. Ideally, our system should exploit this knowledge. Pigs usually do not fly and planes usually do not swim. Nonetheless, we should still recognize a pig were one to appear at the top of the image. We can draw some inspiration here from the children’s game “Where’s Waldo” (which itself has inspired many real-life imitations, such as that depicted in Fig. 7.1.1). The game consists of a number of chaotic scenes bursting with activities. Waldo shows up somewhere in each, typically lurking in some unlikely location. The reader’s goal is to locate him. Despite his characteristic outfit, this can be surprisingly difficult, due to the large number of distractions. However, what Waldo looks like does not depend upon where Waldo is located. We could sweep the image with a Waldo detector that could assign a score to each patch, indicating the likelihood that the patch contains Waldo. In fact, many object detection and segmentation algorithms are based on this approach (Long et al., 2015). CNNs systematize this idea of spatial invariance, exploiting it to learn useful representations with fewer parameters.
+
+../_images/waldo-football.jpg
+Fig. 7.1.1 Can you find Waldo (image courtesy of William Murphy (Infomatique))?
+
+We can now make these intuitions more concrete by enumerating a few desiderata to guide our design of a neural network architecture suitable for computer vision:
+
+In the earliest layers, our network should respond similarly to the same patch, regardless of where it appears in the image. This principle is called translation invariance (or translation equivariance).
+
+The earliest layers of the network should focus on local regions, without regard for the contents of the image in distant regions. This is the locality principle. Eventually, these local representations can be aggregated to make predictions at the whole image level.
+
+As we proceed, deeper layers should be able to capture longer-range features of the image, in a way similar to higher level vision in nature.
+
+Let’s see how this translates into mathematics.
+
+7.1.2. Constraining the MLP
+To start off, we can consider an MLP with two-dimensional images 
+ as inputs and their immediate hidden representations 
+ similarly represented as matrices (they are two-dimensional tensors in code), where both 
+ and 
+ have the same shape. Let that sink in. We now imagine that not only the inputs but also the hidden representations possess spatial structure.
+
+Let 
+ and 
+ denote the pixel at location 
+ in the input image and hidden representation, respectively. Consequently, to have each of the hidden units receive input from each of the input pixels, we would switch from using weight matrices (as we did previously in MLPs) to representing our parameters as fourth-order weight tensors 
+. Suppose that 
+ contains biases, we could formally express the fully connected layer as
+
+(7.1.1)
+  
+ 
+  
+ 
+ 
+ 
+ 
+The switch from 
+ to 
+ is entirely cosmetic for now since there is a one-to-one correspondence between coefficients in both fourth-order tensors. We simply re-index the subscripts 
+ such that 
+ and 
+. In other words, we set 
+. The indices 
+ and 
+ run over both positive and negative offsets, covering the entire image. For any given location (
+, 
+) in the hidden representation 
+, we compute its value by summing over pixels in 
+, centered around 
+ and weighted by 
+. Before we carry on, let’s consider the total number of parameters required for a single layer in this parametrization: a 
+ image (1 megapixel) is mapped to a 
+ hidden representation. This requires 
+ parameters, far beyond what computers currently can handle.
+
+7.1.2.1. Translation Invariance
+Now let’s invoke the first principle established above: translation invariance (Zhang et al., 1988). This implies that a shift in the input 
+ should simply lead to a shift in the hidden representation 
+. This is only possible if 
+ and 
+ do not actually depend on 
+. As such, we have 
+ and 
+ is a constant, say 
+. As a result, we can simplify the definition for 
+:
+
+(7.1.2)
+  
+ 
+This is a convolution! We are effectively weighting pixels at 
+ in the vicinity of location 
+ with coefficients 
+ to obtain the value 
+. Note that 
+ needs many fewer coefficients than 
+ since it no longer depends on the location within the image. Consequently, the number of parameters required is no longer 
+ but a much more reasonable 
+: we still have the dependency on 
+. In short, we have made significant progress. Time-delay neural networks (TDNNs) are some of the first examples to exploit this idea (Waibel et al., 1989).
+
+7.1.2.2. Locality
+Now let’s invoke the second principle: locality. As motivated above, we believe that we should not have to look very far away from location 
+ in order to glean relevant information to assess what is going on at 
+. This means that outside some range 
+ or 
+, we should set 
+. Equivalently, we can rewrite 
+ as
+
+(7.1.3)
+ 
+ 
+This reduces the number of parameters from 
+ to 
+, where 
+ is typically smaller than 
+. As such, we reduced the number of parameters by another four orders of magnitude. Note that (7.1.3), is what is called, in a nutshell, a convolutional layer. Convolutional neural networks (CNNs) are a special family of neural networks that contain convolutional layers. In the deep learning research community, 
+ is referred to as a convolution kernel, a filter, or simply the layer’s weights that are learnable parameters.
+
+While previously, we might have required billions of parameters to represent just a single layer in an image-processing network, we now typically need just a few hundred, without altering the dimensionality of either the inputs or the hidden representations. The price paid for this drastic reduction in parameters is that our features are now translation invariant and that our layer can only incorporate local information, when determining the value of each hidden activation. All learning depends on imposing inductive bias. When that bias agrees with reality, we get sample-efficient models that generalize well to unseen data. But of course, if those biases do not agree with reality, e.g., if images turned out not to be translation invariant, our models might struggle even to fit our training data.
+
+This dramatic reduction in parameters brings us to our last desideratum, namely that deeper layers should represent larger and more complex aspects of an image. This can be achieved by interleaving nonlinearities and convolutional layers repeatedly.
+
+7.1.3. Convolutions
+Let’s briefly review why (7.1.3) is called a convolution. In mathematics, the convolution between two functions (Rudin, 1973), say 
+ is defined as
+
+(7.1.4)
+That is, we measure the overlap between 
+ and 
+ when one function is “flipped” and shifted by 
+. Whenever we have discrete objects, the integral turns into a sum. For instance, for vectors from the set of square-summable infinite-dimensional vectors with index running over 
+ we obtain the following definition:
+
+(7.1.5)
+ 
+For two-dimensional tensors, we have a corresponding sum with indices 
+ for 
+ and 
+ for 
+, respectively:
+
+(7.1.6)
+  
+ 
+This looks similar to (7.1.3), with one major difference. Rather than using 
+, we are using the difference instead. Note, though, that this distinction is mostly cosmetic since we can always match the notation between (7.1.3) and (7.1.6). Our original definition in (7.1.3) more properly describes a cross-correlation. We will come back to this in the following section.
+
+7.1.4. Channels
+Returning to our Waldo detector, let’s see what this looks like. The convolutional layer picks windows of a given size and weighs intensities according to the filter 
+, as demonstrated in Fig. 7.1.2. We might aim to learn a model so that wherever the “waldoness” is highest, we should find a peak in the hidden layer representations.
+
+../_images/waldo-mask.jpg
+Fig. 7.1.2 Detect Waldo (image courtesy of William Murphy (Infomatique)).
+
+There is just one problem with this approach. So far, we blissfully ignored that images consist of three channels: red, green, and blue. In sum, images are not two-dimensional objects but rather third-order tensors, characterized by a height, width, and channel, e.g., with shape 
+ pixels. While the first two of these axes concern spatial relationships, the third can be regarded as assigning a multidimensional representation to each pixel location. We thus index 
+ as 
+. The convolutional filter has to adapt accordingly. Instead of 
+, we now have 
+.
+
+Moreover, just as our input consists of a third-order tensor, it turns out to be a good idea to similarly formulate our hidden representations as third-order tensors 
+. In other words, rather than just having a single hidden representation corresponding to each spatial location, we want an entire vector of hidden representations corresponding to each spatial location. We could think of the hidden representations as comprising a number of two-dimensional grids stacked on top of each other. As in the inputs, these are sometimes called channels. They are also sometimes called feature maps, as each provides a spatialized set of learned features for the subsequent layer. Intuitively, you might imagine that at lower layers that are closer to inputs, some channels could become specialized to recognize edges while others could recognize textures.
+
+To support multiple channels in both inputs (
+) and hidden representations (
+), we can add a fourth coordinate to 
+: 
+. Putting everything together we have:
+
+(7.1.7)
+ 
+ 
+ 
+where 
+ indexes the output channels in the hidden representations 
+. The subsequent convolutional layer will go on to take a third-order tensor, 
+, as input. We take (7.1.7), because of its generality, as the definition of a convolutional layer for multiple channels, where 
+ is a kernel or filter of the layer.
+
+There are still many operations that we need to address. For instance, we need to figure out how to combine all the hidden representations to a single output, e.g., whether there is a Waldo anywhere in the image. We also need to decide how to compute things efficiently, how to combine multiple layers, appropriate activation functions, and how to make reasonable design choices to yield networks that are effective in practice. We turn to these issues in the remainder of the chapter.
+
+7.1.5. Summary and Discussion
+In this section we derived the structure of convolutional neural networks from first principles. While it is unclear whether this was the route taken to the invention of CNNs, it is satisfying to know that they are the right choice when applying reasonable principles to how image processing and computer vision algorithms should operate, at least at lower levels. In particular, translation invariance in images implies that all patches of an image will be treated in the same manner. Locality means that only a small neighborhood of pixels will be used to compute the corresponding hidden representations. Some of the earliest references to CNNs are in the form of the Neocognitron (Fukushima, 1982).
+
+A second principle that we encountered in our reasoning is how to reduce the number of parameters in a function class without limiting its expressive power, at least, whenever certain assumptions on the model hold. We saw a dramatic reduction of complexity as a result of this restriction, turning computationally and statistically infeasible problems into tractable models.
+
+Adding channels allowed us to bring back some of the complexity that was lost due to the restrictions imposed on the convolutional kernel by locality and translation invariance. Note that it is quite natural to add channels other than just red, green, and blue. Many satellite images, in particular for agriculture and meteorology, have tens to hundreds of channels, generating hyperspectral images instead. They report data on many different wavelengths. In the following we will see how to use convolutions effectively to manipulate the dimensionality of the images they operate on, how to move from location-based to channel-based representations, and how to deal with large numbers of categories efficiently.
+
+7.1.6. Exercises
+Assume that the size of the convolution kernel is 
+. Show that in this case the convolution kernel implements an MLP independently for each set of channels. This leads to the Network in Network architectures (Lin et al., 2013).
+
+Audio data is often represented as a one-dimensional sequence.
+
+When might you want to impose locality and translation invariance for audio?
+
+Derive the convolution operations for audio.
+
+Can you treat audio using the same tools as computer vision? Hint: use the spectrogram.
+
+Why might translation invariance not be a good idea after all? Give an example.
+
+Do you think that convolutional layers might also be applicable for text data? Which problems might you encounter with language?
+
+What happens with convolutions when an object is at the boundary of an image?
+
+Prove that the convolution is symmetric, i.e., 
+.
+
+Reduction of learning parameters
+Invariance: [UDL2023, Section 10.1], [DDL23, Section 7.1.2.1]
+Locality principle: [DDL23, Section 7.1.2.2]
+
+Architecture of a CNN: a typical CNN has 4 layers: Input layer, Convolution layer, Pooling layer and Fully connected layer.
+
+
+1.2 Convolutional layer¶
+
+[This part can take about 2 hours 🕒️ of personal working.]
+A convolutional layer is the fundamental building block of a CNN. It is able to detect features such as edges, textures, or more complex patterns in higher layers from the input images, extracting characteristics from the previous layers (input layer, previous convolutions,…). A very interesting description of these layers could be found in this web. It includes the following concepts:
+
+Padding: Image (n,m), filter (f,f), padding p -> Out (n+2p-f+1, m+2p-f+1)
+Strides: Image (n,m), filter (f,f), padding p, stride s -> floor((n+2p-f)/s+1), floor((m+2p-f)/s+1)
+Convolutions over volumes
+Multiple filters
+After the convolution operation, the non-linearity is introduced by an activation function (Sigmoid, ReLU, etc.). It allows to learn more complex patterns.
+
+Some of the contents are extracted from this paper. A summarized version of the concepts can be found in the section 10.2 (except 10.2.6 and 10.2.8) from [FDL2023]. Finally, to go in depth with these concepts, I recomnend you to read the section Convolutions for images, Padding and Stride and Multiple Input and Multiple Output from the Chapter 7 of the [DDL2023] book.
+
+Notes:
+
+The result of a convolution filter with size (f⋅f
+) to an image of (h,w)
+ size with a padding p
+ is: ((h+2p−f)+1,(w+2p−f)+1))
+The result of a convolution filter with size (f⋅f
+ to an image of (h,w)
+ size with a padding p
+ and a stride of s
+ is: ⌊h+2p−fs+1⌋,⌊w+2p−fs+1⌋
+Let cl−1
+ the number of channels of the previous layer l
+ of a convolutonal layer, f
+ the filter height and widht and c
+ the number of filters in the layer. The number of parameters of the convulational layer is: (f⋅f⋅cl−1+1)⋅cl
+Exercise¶
+Calculate the size of the filters of the different layers (a,b,c), (d,e,f) and (g,h,i) of the following image:
+
+1.3 Pooling layer¶
+
+[This part can take about 1 hour 🕒️ of personal working.]
+The main function of the pooling layer is to reduce the spatial dimensions (i.e., width and height) of the input volume for the next convolutional layer. This reduction is achieved without affecting the number of filters in the layer. The pooling operation provides several benefits:
+
+Reduction of computation: By reducing the dimensions of the feature maps, pooling layers decrease the number of parameters and computations in the network, leading to improved computational efficiency.
+Reduction of Overfitting: Smaller input sizes mean fewer parameters, which can help reduce the overfitting in the network.
+Invariance to Transformations: Pooling helps the network to become invariant to small transformations, distortions, and translations in the input image. This means that the network can recognize the object even if it's slightly modified in different input images.
+There are several types of pooling, but the most common are:
+
+Max Pooling
+Average Pooling
+A more detailed explanation could be found in the Pooling section from the Chapter 7 of the [DDL2023] book.
+
+Notes:
+
+There is not parameters to learn!
+Contents for the presential class¶
+In the laboratory class (2 hours 🕒️ duration), we will see how certain components of a convolutional neural network are implemented
+
+
+
+. Second session of this block (13th February 2026)¶
+Contents to prepare before (online)¶
+The contents of this first session are related to the objetive 2, being the following:
+
+2.1 Introduction¶
+
+[This part can take about 0,5 hours 🕒️ of personal working.]
+A typical CNN has several convolution plus pooling layers, each responsible for feature extraction at different levels of abstraction: filters in first layer detect horizontal, vertical, and diagonal edge; filters in the next layer detect shapes; filters in the following layers detect collection of shapes, etc.
+
+A good starting point to understand the architecture of a simple CNN is to study the LeNet model designed in the 90s. LeNet, one of the earliest convolutional neural networks, was designed by Yann LeCun et al. for handwritten and machine-printed character recognition. It laid the groundwork for many of the CNN architectures that followed. LeNet is relatively small by today's standards, with approximately 60K parameters. This makes it computationally efficient and easy to understand. LeNet's architecture reduces width and height dimensions through its layers, while increasing the depth (number of filters). This reduction is achieved through the use of convolutional layers with strides and pooling layers, which also help in achieving spatial invariance to input distortions and shifts. The composition of layers is:
+
+Input Layer: The original LeNet was designed for 32x32 pixel input images.
+Convolutional Layer: The first convolutional layer uses a set of learnable filters. Each filter produces one feature map, capturing basic features like edges or corners.
+Pooling Layer: Follows the first convolutional layer, reducing the spatial size (width and height) of the input volume for the next convolutional layer, reducing the number of parameters and computation in the network, and hence also controlling overfitting.
+Convolutional Layer: A second convolutional layer that further processes the features from the previous pooling layer, detecting higher-level features.
+Pooling Layer: this layer further reduces the dimensionality of the feature maps.
+Fully Connected Layer: The flattened output from the previous layer is fed into a fully connected layer that begins the high-level reasoning process in the network.
+Fully Connected Layer: An additional fully connected layer to continue the pattern analysis from the previous layer, leading to the final classification.
+Output Layer: The final layer uses a softmax to output the probabilities for each class.
+Notes * In some versions of LeNet, the sigmoid function and the hyperbolic tangent (tanh) function were used as the activation function in the convolutional and fully connected layers.
+
+Exercise¶
+Calculate the number of the learning parameters of LeNet architecture
+2.2. Classic networks¶
+
+[This part can take about 1 hour 🕒️ of personal working.]
+Alexnet: [DDL23, Section 8.1]
+
+AlexNet represents a significant milestone in the development of convolutional neural networks and played a pivotal role in demonstrating the power of deep learning for image recognition tasks.
+It was significantly larger and deeper than its predecessors like LeNet (with about 60M parameters). This increase in scale allowed AlexNet to capture more complex and abstract features from images, contributing to its superior performance.
+It was one of the first CNNs to successfully use ReLU activation functions instead of the sigmoid or tanh functions that were common at the time. ReLUs help to alleviate the vanishing gradient problem, allowing deeper networks to be trained more effectively.
+It introduced overlapping pooling, where the pooling windows overlap with each other, as opposed to the non-overlapping pooling used in earlier architectures like LeNet. This was found to reduce overfitting and improve the network's performance.
+It introduced data augmentation techniques such as image translations, horizontal reflections, and alterations to the intensities of the RGB channels.
+Layers:
+Input Layer: The network accepts an input image size of 227x227 pixels with 3 color channels (RGB).
+First Convolutional Layer (Conv1): It uses 96 kernels of size 11x11 with a stride of 4 and applies ReLU activation. This large kernel size is chosen for the first convolutional layer to capture the low-level features from the larger input image.
+Max Pooling Layer: kernel size of 3x3 and a stride of 2.
+Second Convolutional Layer (Conv2): It has 256 kernels of size 5x5, with padding applied to preserve the spatial dimensions. ReLU activation is used.
+Max Pooling Layer: kernel size of 3x3 and a stride of 2.
+Third Convolutional Layer (Conv3): It has 384 kernels of size 3x3, with padding and ReLU activation.
+Fourth Convolutional Layer (Conv4): Similar to Conv3, it has 384 kernels of size 3x3 with padding and ReLU activation.
+Fifth Convolutional Layer (Conv5): It has 256 kernels of size 3x3, again with padding and ReLU activation.
+Max Pooling Layer: kernel size of 3x3 and a stride of 2.
+Fully Connected Layer (FC6): This dense layer has 4096 neurons and includes ReLU activation and dropout with a dropout rate of 0.5 to prevent overfitting.
+Fully Connected Layer (FC7): Also consists of 4096 neurons with ReLU activation and dropout.
+Fully Connected Layer (FC8): / The final FC layer has 1000 neurons (corresponding to the 1000 classes in the ImageNet challenge)
+Output layer: Softmax activation function to output the probability distribution over the classes.
+VGG-16 [DDL23, Section 8.2]
+
+VGG-16, developed by the Visual Graphics Group (VGG) at Oxford, is known for its simplicity and depth. It was a runner-up in the 2014 ImageNet competition.
+The architecture's significant number of parameters (138M) makes it prone to overfitting, which is mitigated by using dropout and data augmentation techniques.
+The model is characterized by its use of 3x3 convolutional layers stacked on top of each other in increasing depth.
+It has an uniform architecture consistent of using 3x3 convolutional filters and 2x2 max-pooling layers throughout the network
+It duplicate filters, starting at 64, doubles after each max-pooling layer, following the sequence 64, 128, 256, 512, 512
+Layers:
+Input Layer: size 224x224 pixels with 3 channels (RGB)
+Conv1: 2x [Conv3x3-64] + MaxPool (2x2, stride 2)
+Conv2: 2x [Conv3x3-128] + MaxPool (2x2, stride 2)
+Conv3: 3x [Conv3x3-256] + MaxPool (2x2, stride 2)
+Conv4: 3x [Conv3x3-512] + MaxPool (2x2, stride 2)
+Conv5: 3x [Conv3x3-512] + MaxPool (2x2, stride 2)
+FC1: 4096 neurons, ReLU activation
+FC2: 4096 neurons, ReLU activation
+FC3: 1000 neurons (for 1000 ImageNet classes), Softmax activation
+2.2. Residual networks¶
+
+[This part can take about 0,5 hours 🕒️ of personal working.]
+
+
+ResNet [FDL2023, Section 9.5], [TDS],[DDL2023, Section 8.6]
+
+
+ResNet (Residual Network) was introduced by He et al. in 2015 and won the ImageNet competition by a significant margin.
+It addresses the vanishing gradient problem in deep neural networks through the use of residual blocks, enabling the training of networks that are much deeper than previous architectures. This is by using shortcut connections that allow gradients to flow through the network more effectively. his approach allows for the construction of very deep networks (ResNet variants come in depths of 50, 101, 152 layers, and more) without degradation in performance due to vanishing gradients.
+The core building block of ResNet that enables the network to learn identity functions, ensuring that deeper layers can at least perform as well as shallower ones.
+A residual block allows the input to a series of layers to be added to their output, facilitating the learning process by allowing the network to learn modifications to the identity mapping rather than the entire transformation from scratch. It is composed by:
+Shortcut Connection that skips one or more layers.
+Two or three convolutional layers, each followed by batch normalization and a ReLU activation function.
+The output of the weighted layers is added to the shortcut connection's output. If the input and output dimensions are the same, the shortcut connection directly adds the input x
+ to the output of the convolutional layers F(x)
+, resulting in F(x)+x
+. If the dimensions of x
+ and F(x)
+ do not match, a linear projection Ws
+ is applied to x
+ through a convolutional operation to match the dimensions. The resulting output is F(x)+Wsx
+.
+Layers of ResNet-34:
+Input Layer: size 224x224 pixels with 3 channels (RGB)
+Convolutional Layer: 7x7 convolutions, 64 filters, stride of 2, ReLU Activation
+Max Pooling: 3x3, stride of 2
+Residual blocks: The blocks in each stage have the same number of filters, but the number of filters increases as the network deepens.
+3 Basic Residual Blocks: Each block has two 3x3 convolutional layers with 64 filters each. Shortcut connections add the input of the block to its output without any modification since the dimensions match.
+4 Basic Residual Blocks: Each block has two 3x3 convolutional layers with 128 filters each. The first block uses a stride of 2 for down-sampling and a 1x1 convolution in the shortcut connection to match the increased depth.
+6 Basic Residual Blocks: Each block has two 3x3 convolutional layers with 256 filters each. Similar to the previous stage 2, the first block uses a stride of 2 for down-sampling, and the shortcut connection includes a 1x1 convolution to match the depth.
+3 Basic Residual Blocks: Each block has two 3x3 convolutional layers with 512 filters each. Again, the first block in this stage applies a stride of 2 for down-sampling, and the shortcut connection includes a 1x1 convolution to match the depth.
+Global Average Pooling: Applied after the last convolutional block to reduce spatial dimensions to 1x1.
+Fully Connected Layer: Ends with a fully connected layer with 1000 neurons (for the 1000 classes of the ImageNet dataset), followed by a softmax activation for classification.
+
+
+From He et al. 2015]
+
+Note:
+
+1x1 convolution: 1X1 Conv are used to increase/reduce the number of channels while introducing non-linearity.
+
+
+2.3. Inception¶
+
+[This part can take about 0,5 hours 🕒️ of personal working.]
+The Inception architecture [DDL 2023, Section 8.4], particularly known from the GoogLeNet (Inception v1) model introduced in the 2014 ImageNet competition, is notable for its novel approach to convolutional network design. It introduced the "Inception module," a building block that allows the network to choose from different filter sizes and operations within the same layer. Some important notes:
+
+
+
+8.4. Multi-Branch Networks (GoogLeNet)
+search
+Search
+Quick search
+code
+Show Source
+ Preview Version
+ PyTorch
+ MXNet
+ Notebooks
+ Courses
+ GitHub
+ 中文版
+Dive into Deep Learning
+Preface
+Installation
+Notation
+1. Introduction
+2. Preliminaries
+keyboard_arrow_down
+3. Linear Neural Networks for Regression
+keyboard_arrow_down
+4. Linear Neural Networks for Classification
+keyboard_arrow_down
+5. Multilayer Perceptrons
+keyboard_arrow_down
+6. Builders’ Guide
+keyboard_arrow_down
+7. Convolutional Neural Networks
+keyboard_arrow_down
+8. Modern Convolutional Neural Networks
+keyboard_arrow_down
+8.1. Deep Convolutional Neural Networks (AlexNet)
+8.2. Networks Using Blocks (VGG)
+8.3. Network in Network (NiN)
+8.4. Multi-Branch Networks (GoogLeNet)
+8.5. Batch Normalization
+8.6. Residual Networks (ResNet) and ResNeXt
+8.7. Densely Connected Networks (DenseNet)
+8.8. Designing Convolution Network Architectures
+9. Recurrent Neural Networks
+keyboard_arrow_down
+10. Modern Recurrent Neural Networks
+keyboard_arrow_down
+11. Attention Mechanisms and Transformers
+keyboard_arrow_down
+12. Optimization Algorithms
+keyboard_arrow_down
+13. Computational Performance
+keyboard_arrow_down
+14. Computer Vision
+keyboard_arrow_down
+15. Natural Language Processing: Pretraining
+keyboard_arrow_down
+16. Natural Language Processing: Applications
+keyboard_arrow_down
+17. Reinforcement Learning
+keyboard_arrow_down
+18. Gaussian Processes
+keyboard_arrow_down
+19. Hyperparameter Optimization
+keyboard_arrow_down
+20. Generative Adversarial Networks
+keyboard_arrow_down
+21. Recommender Systems
+keyboard_arrow_down
+22. Appendix: Mathematics for Deep Learning
+keyboard_arrow_down
+23. Appendix: Tools for Deep Learning
+keyboard_arrow_down
+References
+Dive into Deep Learning
+Preface
+Installation
+Notation
+1. Introduction
+2. Preliminaries
+keyboard_arrow_down
+3. Linear Neural Networks for Regression
+keyboard_arrow_down
+4. Linear Neural Networks for Classification
+keyboard_arrow_down
+5. Multilayer Perceptrons
+keyboard_arrow_down
+6. Builders’ Guide
+keyboard_arrow_down
+7. Convolutional Neural Networks
+keyboard_arrow_down
+8. Modern Convolutional Neural Networks
+keyboard_arrow_down
+8.1. Deep Convolutional Neural Networks (AlexNet)
+8.2. Networks Using Blocks (VGG)
+8.3. Network in Network (NiN)
+8.4. Multi-Branch Networks (GoogLeNet)
+8.5. Batch Normalization
+8.6. Residual Networks (ResNet) and ResNeXt
+8.7. Densely Connected Networks (DenseNet)
+8.8. Designing Convolution Network Architectures
+9. Recurrent Neural Networks
+keyboard_arrow_down
+10. Modern Recurrent Neural Networks
+keyboard_arrow_down
+11. Attention Mechanisms and Transformers
+keyboard_arrow_down
+12. Optimization Algorithms
+keyboard_arrow_down
+13. Computational Performance
+keyboard_arrow_down
+14. Computer Vision
+keyboard_arrow_down
+15. Natural Language Processing: Pretraining
+keyboard_arrow_down
+16. Natural Language Processing: Applications
+keyboard_arrow_down
+17. Reinforcement Learning
+keyboard_arrow_down
+18. Gaussian Processes
+keyboard_arrow_down
+19. Hyperparameter Optimization
+keyboard_arrow_down
+20. Generative Adversarial Networks
+keyboard_arrow_down
+21. Recommender Systems
+keyboard_arrow_down
+22. Appendix: Mathematics for Deep Learning
+keyboard_arrow_down
+23. Appendix: Tools for Deep Learning
+keyboard_arrow_down
+References
+8.4. Multi-Branch Networks (GoogLeNet)
+ Colab [pytorch]Open the notebook in Colab
+ SageMaker Studio LabOpen the notebook in SageMaker Studio Lab
+In 2014, GoogLeNet won the ImageNet Challenge (Szegedy et al., 2015), using a structure that combined the strengths of NiN (Lin et al., 2013), repeated blocks (Simonyan and Zisserman, 2014), and a cocktail of convolution kernels. It was arguably also the first network that exhibited a clear distinction among the stem (data ingest), body (data processing), and head (prediction) in a CNN. This design pattern has persisted ever since in the design of deep networks: the stem is given by the first two or three convolutions that operate on the image. They extract low-level features from the underlying images. This is followed by a body of convolutional blocks. Finally, the head maps the features obtained so far to the required classification, segmentation, detection, or tracking problem at hand.
+
+The key contribution in GoogLeNet was the design of the network body. It solved the problem of selecting convolution kernels in an ingenious way. While other works tried to identify which convolution, ranging from 
+ to 
+ would be best, it simply concatenated multi-branch convolutions. In what follows we introduce a slightly simplified version of GoogLeNet: the original design included a number of tricks for stabilizing training through intermediate loss functions, applied to multiple layers of the network. They are no longer necessary due to the availability of improved training algorithms.
+
+pytorch
+mxnet
+jax
+tensorflow
+import torch
+from torch import nn
+from torch.nn import functional as F
+from d2l import torch as d2l
+Copy to clipboard
+8.4.1. Inception Blocks
+The basic convolutional block in GoogLeNet is called an Inception block, stemming from the meme “we need to go deeper” from the movie Inception.
+
+../_images/inception.svg
+Fig. 8.4.1 Structure of the Inception block.
+
+As depicted in Fig. 8.4.1, the inception block consists of four parallel branches. The first three branches use convolutional layers with window sizes of 
+, 
+, and 
+ to extract information from different spatial sizes. The middle two branches also add a 
+ convolution of the input to reduce the number of channels, reducing the model’s complexity. The fourth branch uses a 
+ max-pooling layer, followed by a 
+ convolutional layer to change the number of channels. The four branches all use appropriate padding to give the input and output the same height and width. Finally, the outputs along each branch are concatenated along the channel dimension and comprise the block’s output. The commonly-tuned hyperparameters of the Inception block are the number of output channels per layer, i.e., how to allocate capacity among convolutions of different size.
+
+pytorch
+mxnet
+jax
+tensorflow
+class Inception(nn.Module):
+    # c1--c4 are the number of output channels for each branch
+    def __init__(self, c1, c2, c3, c4, **kwargs):
+        super(Inception, self).__init__(**kwargs)
+        # Branch 1
+        self.b1_1 = nn.LazyConv2d(c1, kernel_size=1)
+        # Branch 2
+        self.b2_1 = nn.LazyConv2d(c2[0], kernel_size=1)
+        self.b2_2 = nn.LazyConv2d(c2[1], kernel_size=3, padding=1)
+        # Branch 3
+        self.b3_1 = nn.LazyConv2d(c3[0], kernel_size=1)
+        self.b3_2 = nn.LazyConv2d(c3[1], kernel_size=5, padding=2)
+        # Branch 4
+        self.b4_1 = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        self.b4_2 = nn.LazyConv2d(c4, kernel_size=1)
+
+    def forward(self, x):
+        b1 = F.relu(self.b1_1(x))
+        b2 = F.relu(self.b2_2(F.relu(self.b2_1(x))))
+        b3 = F.relu(self.b3_2(F.relu(self.b3_1(x))))
+        b4 = F.relu(self.b4_2(self.b4_1(x)))
+        return torch.cat((b1, b2, b3, b4), dim=1)
+Copy to clipboard
+To gain some intuition for why this network works so well, consider the combination of the filters. They explore the image in a variety of filter sizes. This means that details at different extents can be recognized efficiently by filters of different sizes. At the same time, we can allocate different amounts of parameters for different filters.
+
+8.4.2. GoogLeNet Model
+As shown in Fig. 8.4.2, GoogLeNet uses a stack of a total of 9 inception blocks, arranged into three groups with max-pooling in between, and global average pooling in its head to generate its estimates. Max-pooling between inception blocks reduces the dimensionality. At its stem, the first module is similar to AlexNet and LeNet.
+
+../_images/inception-full-90.svg
+Fig. 8.4.2 The GoogLeNet architecture.
+
+We can now implement GoogLeNet piece by piece. Let’s begin with the stem. The first module uses a 64-channel 
+ convolutional layer.
+
+pytorch
+mxnet
+jax
+tensorflow
+class GoogleNet(d2l.Classifier):
+    def b1(self):
+        return nn.Sequential(
+            nn.LazyConv2d(64, kernel_size=7, stride=2, padding=3),
+            nn.ReLU(), nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+Copy to clipboard
+The second module uses two convolutional layers: first, a 64-channel 
+ convolutional layer, followed by a 
+ convolutional layer that triples the number of channels. This corresponds to the second branch in the Inception block and concludes the design of the body. At this point we have 192 channels.
+
+pytorch
+mxnet
+jax
+tensorflow
+@d2l.add_to_class(GoogleNet)
+def b2(self):
+    return nn.Sequential(
+        nn.LazyConv2d(64, kernel_size=1), nn.ReLU(),
+        nn.LazyConv2d(192, kernel_size=3, padding=1), nn.ReLU(),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+Copy to clipboard
+The third module connects two complete Inception blocks in series. The number of output channels of the first Inception block is 
+. This amounts to a ratio of the number of output channels among the four branches of 
+. To achieve this, we first reduce the input dimensions by 
+ 
+ and by 
+ 
+ in the second and third branch respectively to arrive at 
+ and 
+ channels respectively.
+
+The number of output channels of the second Inception block is increased to 
+, yielding a ratio of 
+. As before, we need to reduce the number of intermediate dimensions in the second and third channel. A scale of 
+ 
+ and 
+ 
+ respectively suffices, yielding 
+ and 
+ channels respectively. This is captured by the arguments of the following Inception block constructors.
+
+pytorch
+mxnet
+jax
+tensorflow
+@d2l.add_to_class(GoogleNet)
+def b3(self):
+    return nn.Sequential(Inception(64, (96, 128), (16, 32), 32),
+                         Inception(128, (128, 192), (32, 96), 64),
+                         nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+Copy to clipboard
+The fourth module is more complicated. It connects five Inception blocks in series, and they have 
+, 
+, 
+, 
+, and 
+ output channels, respectively. The number of channels assigned to these branches is similar to that in the third module: the second branch with the 
+ convolutional layer outputs the largest number of channels, followed by the first branch with only the 
+ convolutional layer, the third branch with the 
+ convolutional layer, and the fourth branch with the 
+ max-pooling layer. The second and third branches will first reduce the number of channels according to the ratio. These ratios are slightly different in different Inception blocks.
+
+pytorch
+mxnet
+jax
+tensorflow
+@d2l.add_to_class(GoogleNet)
+def b4(self):
+    return nn.Sequential(Inception(192, (96, 208), (16, 48), 64),
+                         Inception(160, (112, 224), (24, 64), 64),
+                         Inception(128, (128, 256), (24, 64), 64),
+                         Inception(112, (144, 288), (32, 64), 64),
+                         Inception(256, (160, 320), (32, 128), 128),
+                         nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+Copy to clipboard
+The fifth module has two Inception blocks with 
+ and 
+ output channels. The number of channels assigned to each branch is the same as that in the third and fourth modules, but differs in specific values. It should be noted that the fifth block is followed by the output layer. This block uses the global average pooling layer to change the height and width of each channel to 1, just as in NiN. Finally, we turn the output into a two-dimensional array followed by a fully connected layer whose number of outputs is the number of label classes.
+
+pytorch
+mxnet
+jax
+tensorflow
+@d2l.add_to_class(GoogleNet)
+def b5(self):
+    return nn.Sequential(Inception(256, (160, 320), (32, 128), 128),
+                         Inception(384, (192, 384), (48, 128), 128),
+                         nn.AdaptiveAvgPool2d((1,1)), nn.Flatten())
+Copy to clipboard
+Now that we defined all blocks b1 through b5, it is just a matter of assembling them all into a full network.
+
+pytorch
+mxnet
+tensorflow
+@d2l.add_to_class(GoogleNet)
+def __init__(self, lr=0.1, num_classes=10):
+    super(GoogleNet, self).__init__()
+    self.save_hyperparameters()
+    self.net = nn.Sequential(self.b1(), self.b2(), self.b3(), self.b4(),
+                             self.b5(), nn.LazyLinear(num_classes))
+    self.net.apply(d2l.init_cnn)
+Copy to clipboard
+The GoogLeNet model is computationally complex. Note the large number of relatively arbitrary hyperparameters in terms of the number of channels chosen, the number of blocks prior to dimensionality reduction, the relative partitioning of capacity across channels, etc. Much of it is due to the fact that at the time when GoogLeNet was introduced, automatic tools for network definition or design exploration were not yet available. For instance, by now we take it for granted that a competent deep learning framework is capable of inferring dimensionalities of input tensors automatically. At the time, many such configurations had to be specified explicitly by the experimenter, thus often slowing down active experimentation. Moreover, the tools needed for automatic exploration were still in flux and initial experiments largely amounted to costly brute-force exploration, genetic algorithms, and similar strategies.
+
+For now the only modification we will carry out is to reduce the input height and width from 224 to 96 to have a reasonable training time on Fashion-MNIST. This simplifies the computation. Let’s have a look at the changes in the shape of the output between the various modules.
+
+pytorch
+mxnet
+jax
+tensorflow
+model = GoogleNet().layer_summary((1, 1, 96, 96))
+Copy to clipboard
+Sequential output shape:     torch.Size([1, 64, 24, 24])
+Sequential output shape:     torch.Size([1, 192, 12, 12])
+Sequential output shape:     torch.Size([1, 480, 6, 6])
+Sequential output shape:     torch.Size([1, 832, 3, 3])
+Sequential output shape:     torch.Size([1, 1024])
+Linear output shape:         torch.Size([1, 10])
+8.4.3. Training
+As before, we train our model using the Fashion-MNIST dataset. We transform it to 
+ pixel resolution before invoking the training procedure.
+
+pytorch
+mxnet
+jax
+tensorflow
+model = GoogleNet(lr=0.01)
+trainer = d2l.Trainer(max_epochs=10, num_gpus=1)
+data = d2l.FashionMNIST(batch_size=128, resize=(96, 96))
+model.apply_init([next(iter(data.get_dataloader(True)))[0]], d2l.init_cnn)
+trainer.fit(model, data)
+Copy to clipboard
+../_images/output_googlenet_83a8b4_135_0.svg
+8.4.4. Discussion
+A key feature of GoogLeNet is that it is actually cheaper to compute than its predecessors while simultaneously providing improved accuracy. This marks the beginning of a much more deliberate network design that trades off the cost of evaluating a network with a reduction in errors. It also marks the beginning of experimentation at a block level with network design hyperparameters, even though it was entirely manual at the time. We will revisit this topic in Section 8.8 when discussing strategies for network structure exploration.
+
+Over the following sections we will encounter a number of design choices (e.g., batch normalization, residual connections, and channel grouping) that allow us to improve networks significantly. For now, you can be proud to have implemented what is arguably the first truly modern CNN.
+
+8.4.5. Exercises
+GoogLeNet was so successful that it went through a number of iterations, progressively improving speed and accuracy. Try to implement and run some of them. They include the following:
+
+Add a batch normalization layer (Ioffe and Szegedy, 2015), as described later in Section 8.5.
+
+Make adjustments to the Inception block (width, choice and order of convolutions), as described in Szegedy et al. (2016).
+
+Use label smoothing for model regularization, as described in Szegedy et al. (2016).
+
+Make further adjustments to the Inception block by adding residual connection (Szegedy et al., 2017), as described later in Section 8.6.
+
+What is the minimum image size needed for GoogLeNet to work?
+
+Can you design a variant of GoogLeNet that works on Fashion-MNIST’s native resolution of 
+ pixels? How would you need to change the stem, the body, and the head of the network, if anything at all?
+
+Compare the model parameter sizes of AlexNet, VGG, NiN, and GoogLeNet. How do the latter two network architectures significantly reduce the model parameter size?
+
+Compare the amount of computation needed in GoogLeNet and AlexNet. How does this affect the design of an accelerator chip, e.g., in terms of memory size, memory bandwidth, cache size, the amount of computation, and the benefit of specialized operations?
+
+pytorch
+mxnet
+jax
+tensorflow
+
+
+Next
+8.5. Batch Normalization
+
+
+
+The Inception architecture revolutionizes the design of convolutional layers by incorporating multiple filter sizes within the same module, allowing the network to adapt to various spatial hierarchies of features in images.
+The Inception module:
+1x1 Convolutions: To perform dimensionality reduction or increase, reducing the computational cost and the number of parameters in the network and to increase the network's ability to capture nonlinearities without a significant increase in computational complexity.
+Multiple Filter Sizes: Within each Inception module, convolutional operations with different filter sizes (e.g., 1x1, 3x3, and 5x5) are performed in parallel to capture information from various spatial extents. The outputs of these parallel paths are concatenated along the channel dimension, allowing the network to decide which filters to emphasize for each new input.
+Pooling: Inception modules also include a parallel pooling path, typically max pooling, followed by 1x1 convolutions to reduce dimensionality before concatenation.
+Dimensionality Reduction: Before applying larger convolutions (e.g., 3x3 and 5x5), 1x1 convolutions are used for dimensionality reduction, decreasing the computational burden.
+The Inception modules' combination of parallel convolutional paths with different filter sizes and 1x1 convolutions for dimensionality management allows the network to be both wide (in terms of capturing a broad range of features) and deep (in terms of layers), while maintaining computational efficiency. This design philosophy has been extended and refined in subsequent versions of the Inception architecture, such as Inception v2, v3, and v4, each introducing further optimizations and improvements.
+
+
+[From Szegedy et al. 2014]
+
+2.4. Computational efficient networks¶
+
+[This part can take about 1 hour 🕒️ of personal working.]
+
+
+Open in app
+Sign up
+
+Sign in
+
+Search
+Write
+
+
+An Overview on MobileNet: An Efficient Mobile Vision CNN
+Srudeep PA
+Srudeep PA
+
+Follow
+5 min read
+·
+Jun 10, 2020
+215
+
+
+2
+
+
+
+MobileNet is a simple but efficient and not very computationally intensive convolutional neural networks for mobile vision applications. MobileNet is widely used in many real-world applications which includes object detection, fine-grained classifications, face attributes, and localization. In this lecture, I will explain you the overview of MobileNet and how exactly it becomes the most efficient and lightweight neural network.
+
+Press enter or click to view image in full size
+
+Application of MobileNet
+Before moving further here is the reference research paper: https://arxiv.org/abs/1704.04861
+
+What’s in the index:
+Depth-wise separable convolution
+— 1.1 Depth-wise convolution
+— 1.2 Point-wise convolution
+The entire Network Structure
+Parameters of MobileNet
+— 3.1 Width-wise Multiplayer
+— 3.2 Resolution-wise Multiplayer
+1. Depth-wise separable convolution
+The Depth-wise separable convolution is comprising of two layers, the depth-wise convolution, and the point-wise convolution. Basically the first layer is used to filter the input channels and the second layer is used to combine them to create a new feature.
+
+1.1 Depth-wise convolution
+The depth-wise convolutions are used to apply a single filter into each input channel. This is different from a standard convolution in which the filters are applied to all of the input channels.
+
+Let’s take a standard convolution,
+
+Press enter or click to view image in full size
+
+Standard Convolution
+From the above image, the computational cost can be calculated as :
+
+
+Standard Convolution Cost
+Where DF is the special dimensions of the input feature map and DK is the size of the convolution kernel. Here M and N are the number of input and output channels respectively.
+
+For a standard convolution, the computational cost depends multiplicatively on the number of input and output channels and on the spatial dimensions of the input feature map and convolution kernel.
+
+Incase of depthwise convolution, as seen in the below image, contains an input feature map of dimension DF*DF and M number of kernels of channel size 1.
+
+Press enter or click to view image in full size
+
+Depth-wise Convolution
+As per the above image, we can clearly see that the total computational cost can be calculated as:
+
+
+Depth-Wise Convolution cost
+However, this method is only used to filter the input channel.
+
+1.2 Point-wise Convolution
+Since the depthwise convolution is only used to filter the input channel, it does not combine them to produce new features. So an additional layer called pointwise convolution layer is made, which computes a linear combination of the output of depthwise convolution using a 1 × 1 convolution.
+
+Press enter or click to view image in full size
+
+Point-wise Convolution
+As per the image, let's calculate the computational cost again:
+
+
+Pointwise convolution cost
+So the total computational cost of Depthwise separable convolutions can be calculated as:
+
+
+Depthwise separable convolutions cost
+Comparing it with the computational cost os standard convolution, we get a reduction in computation, which can be expressed as:
+
+
+Depthwise separable convolutions cost with standard convolution cost
+To put this in a perspective to check the effectiveness of this depthwise separable convolution. Let’s take an example.
+
+Get Srudeep PA’s stories in your inbox
+Join Medium for free to get updates from this writer.
+
+Enter your email
+Subscribe
+Let’s take N=1024 and Dk=3, plugging the values into the equation.
+
+We get 0.112, or in another word, standard convolution has 9 times more the number of multiplication than that of the Depthwise convolution.
+
+2. The entire Network Structure
+Below is architecture table of MobileNet
+
+
+Network Architecture: MobileNet
+
+Left: Standard Convolution followed by batch normalization and RELU. Right: Depthwise convolution layer and pointwise convolution layer, each followed by batch normalization and RELU.
+From the above image, we can see that every convolution layer followed by a batch normalization and a ReLU. Also, a final average pooling is been introduced just before the fully connected layer to reduce the spatial dimension to 1.
+
+Note that the above architecture has 28 layers by counting widthwise and pointwise convolution as separate layers.
+
+3. Parameters of MobileNet
+Although the base MobileNet architecture is already small and computationally not very intensive, it has two different global hyperparameters to effectively reduce the computational cost further.
+One is the width multiplayer and another is the resolution wise multiplayer.
+
+3.1 Width Multiplier: Thinner Models
+For further reduction of computational cost, they introduced a simple parameter called Width Multiplier also refer as α.
+
+For each layer, the width multiplier α will be multiplied with the input and the output channels(N and M) in order to narrow a network.
+
+So the computational cost with width multiplier would become.
+
+
+Computational Cost: Depthwise separable convolution with width multiplier
+Here α will vary from 0 to 1, with typical values of [1, 0.75, 0.5 and 0.25]. When α = 1, called as baseline MobileNet and α < 1, called as reduced MobileNet. Width Multiplier has the effect of reducing computational cost by α².
+
+3.2 Resolution Multiplier: Reduced Representation
+The second parameter to reduce the computational cost effectively. Also known as ρ.
+
+For a given layer, the resolution multiplier ρ will be multiplied with the input feature map. Now we can express the computational cost by applying width multiplier and resolution multiplier as:
+
+
+Computational cost by applying width multiplier and resolution multiplier
+4. Comparison of MobileNet with Popular Models
+The below image shows that MobileNet dominates over other famous and state-of-art models like GoogleNet and VGG 16 with just lesser parameters.
+
+
+MobileNet vs other State-Of-Art Models
+The below image shows the difference between the Depthwise separable model and the Standard convolution model.
+
+
+Depthwise Convolution vs Standard convolution
+It is very much evident that the ImageNet accuracy is just 0.1% lesser than the standard convolution model but with very fewer Mult-Adds and Parameters.
+
+To Conclude,
+
+MobileNet is not the only model that competes with other state-of-art models but with this smaller and lightweight network by Depthwise Separable Convolution has done a really great job!
+
+Mobilenet
+Cnn For Mobile
+Efficient Cnn
+Depthwise Seperable
+Depthwise Convolution
+215
+
+
+2
+
+
+Srudeep PA
+Written by Srudeep PA
+20 followers
+·
+2 following
+Data Science Enthusiast, ML Engineer
+
+
+Follow
+Responses (2)
+
+Write a response
+
+What are your thoughts?
+
+Cancel
+Respond
+Mitulgarg
+Mitulgarg
+
+Jun 14, 2025 (edited)
+
+
+Really cool, just a bit confused about how are we reducing the channel size to 1?
+what are the computations being done? an example or an iteration would help.
+Understood the rest of it and how it bringsdown computations while keeping a great accuracy! Cool!
+Reply
+
+ziliang xiong
+ziliang xiong
+
+Jul 8, 2020
+
+
+Hi! I’ve read the paper and your review, feeling confused about how the depth multiplier works. M is the number of depthwise filters and N is the number of pointwise filters. It’s easy to reduce N but if to reduce M, the channels of input feature maps will be larger than M. Does that mean giving up the rest channels?
+Reply
+
+Recommended from Medium
+The Death of CNNs: How Vision Transformers Rewrote Computer Vision in 3 Years (Part 1: The CNN Era)
+Towards AI
+In
+
+Towards AI
+
+by
+
+Ampatishan Sivalingam
+
+The Death of CNNs: How Vision Transformers Rewrote Computer Vision in 3 Years (Part 1: The CNN Era)
+From AlexNet’s 2012 revolution to ResNet’s dominance, and why it all became obsolete overnight
+
+Feb 6
+10
+Stanford Just Killed Prompt Engineering With 8 Words (And I Can’t Believe It Worked)
+Generative AI
+In
+
+Generative AI
+
+by
+
+Adham Khaled
+
+Stanford Just Killed Prompt Engineering With 8 Words (And I Can’t Believe It Worked)
+ChatGPT keeps giving you the same boring response? This new technique unlocks 2× more creativity from ANY AI model — no training required…
+
+Oct 20, 2025
+24K
+632
+Stop Memorizing Design Patterns: Use This Decision Tree Instead
+Women in Technology
+In
+
+Women in Technology
+
+by
+
+Alina Kovtun✨
+
+Stop Memorizing Design Patterns: Use This Decision Tree Instead
+Choose design patterns based on pain points: apply the right pattern with minimal over-engineering in any OO language.
+
+Jan 29
+4.1K
+34
+6 brain images
+Write A Catalyst
+In
+
+Write A Catalyst
+
+by
+
+Dr. Patricia Schmidt
+
+As a Neuroscientist, I Quit These 5 Morning Habits That Destroy Your Brain
+Most people do #1 within 10 minutes of waking (and it sabotages your entire day)
+
+Jan 14
+31K
+560
+Screenshot of a desktop with the Cursor application open
+Jacob Bennett
+Jacob Bennett
+
+The 5 paid subscriptions I actually use in 2026 as a Staff Software Engineer
+Tools I use that are (usually) cheaper than Netflix
+
+Jan 19
+3.1K
+78
+I Stopped Using ChatGPT for 30 Days. What Happened to My Brain Was Terrifying.
+Level Up Coding
+In
+
+Level Up Coding
+
+by
+
+Teja Kusireddy
+
+I Stopped Using ChatGPT for 30 Days. What Happened to My Brain Was Terrifying.
+91% of you will abandon 2026 resolutions by January 10th. Here’s how to be in the 9% who actually win.
+
+Dec 28, 2025
+6.9K
+276
+See more recommendations
+
+
+
+MobileNet [Medium]
+
+The key innovation is in their efficient architectural design, aimed at reducing computational cost while maintaining high performance, especially on mobile and embedded devices.
+The core innovation is the use of depthwise separable convolutions.
+
+Instead of using standard convolutions, it employs depthwise separable convolutions, which use a standard convolution into a depthwise convolution and a 1x1 pointwise convolution. *The input is first processed by a depthwise convolution (nw⋅nh⋅nc)
+, applying a single filter per input channel. This is followed by a pointwise convolution (1⋅1⋅n′c)
+ convolutions that combines the outputs of the depthwise convolution, adjusting the depth as necessary.
+The computational cost is significantly reduced compared to standard convolutions.
+Example:
+
+For the following convolution, the number of calculations is filter parameters x filter positions x humber of filters. This is (3 x 3 x 3) x (10 x 10) x 5 = 13.500 operations.
+
+
+In case, we would use depthwise separable convolutions, as in the following figure:
+
+
+The number of calculations will be reduced. First, the depthwise convolutions are applied for each channel obtaining that the number of calculations is again filter parameters x filter positions x humber of filters. This is (3 x 3) x (10 x 10) x 3 = 2.700 operations. Moreover, the pointwise (1x1) convolution, would be: (1 x 1 x 3) x (10 x 10) x 5 = 1.500 operations. Added to the previous calculations, we have a total of 4.200 operations, about a 30% of the previous operations.
+
+MobileNetV2:
+
+It introduces residual connections similar to those in ResNet, but within the framework of inverted residual blocks. These connections allow the input to bypass one or more layers, facilitating the flow of gradients during training and mitigating the vanishing gradient problem.
+Inverted Residual Blocks
+Pointwise convolution: Each block starts with a 1x1 convolution that expands the input's depth, increasing the representation capacity and allowing the network to learn more complex functions.
+Depthwise Convolution: Follows the expansion layer, applying spatial filtering within each channel.
+Projection Layer: A 1x1 convolution that projects the expanded feature map back to a lower dimension, reducing the size and computational cost of the feature map.
+This expansion-projection strategy increases the network's expressiveness while keeping the computational cost low by expanding the feature space only temporarily within the block.
+EfficientNet [Medium]:
+
+These architectures systematically scale up CNNs in a more structured manner to achieve better efficiency and accuracy. The key innovation of EfficientNet is the use of a compound scaling method that uniformly scales network width, depth, and resolution with a set of fixed scaling coefficients.
+It is able to achieve state-of-the-art accuracy with significantly fewer parameters and FLOPs (floating-point operations per second) compared to previous architectures.
+2.5. Image augmentation¶
+
+[This part can take about 0,25 hours 🕒️ of personal working.
+
+
+2.5. Image augmentation¶
+
+[This part can take about 0,25 hours 🕒️ of personal working.]
+Finally, image augmentation is a technique used to enhance the diversity of a training dataset without actually collecting new images. This is achieved by applying a series of random transformations to the existing images in the dataset, such as rotations, translations, flips, scaling, shearing, and color variations. These transformations produce altered versions of the images, which help the model generalize better from the training data, making it more robust to variations it might encounter in real-world data.
+
+The benefits are: * Enhanced Generalization: Augmentation increases the diversity of the training set, helping the model generalize better to unseen data. * Reduced Overfitting: By providing varied examples, it prevents the model from memorizing specific images. * Improved Robustnes: Models become more robust to variations in input data, such as different angles, lighting conditions, and occlusions.
+
+
+
+14.1. Image Augmentation
+search
+Search
+Quick search
+code
+Show Source
+ Preview Version
+ PyTorch
+ MXNet
+ Notebooks
+ Courses
+ GitHub
+ 中文版
+Dive into Deep Learning
+Preface
+Installation
+Notation
+1. Introduction
+2. Preliminaries
+keyboard_arrow_down
+3. Linear Neural Networks for Regression
+keyboard_arrow_down
+4. Linear Neural Networks for Classification
+keyboard_arrow_down
+5. Multilayer Perceptrons
+keyboard_arrow_down
+6. Builders’ Guide
+keyboard_arrow_down
+7. Convolutional Neural Networks
+keyboard_arrow_down
+8. Modern Convolutional Neural Networks
+keyboard_arrow_down
+9. Recurrent Neural Networks
+keyboard_arrow_down
+10. Modern Recurrent Neural Networks
+keyboard_arrow_down
+11. Attention Mechanisms and Transformers
+keyboard_arrow_down
+12. Optimization Algorithms
+keyboard_arrow_down
+13. Computational Performance
+keyboard_arrow_down
+14. Computer Vision
+keyboard_arrow_down
+14.1. Image Augmentation
+14.2. Fine-Tuning
+14.3. Object Detection and Bounding Boxes
+14.4. Anchor Boxes
+14.5. Multiscale Object Detection
+14.6. The Object Detection Dataset
+14.7. Single Shot Multibox Detection
+14.8. Region-based CNNs (R-CNNs)
+14.9. Semantic Segmentation and the Dataset
+14.10. Transposed Convolution
+14.11. Fully Convolutional Networks
+14.12. Neural Style Transfer
+14.13. Image Classification (CIFAR-10) on Kaggle
+14.14. Dog Breed Identification (ImageNet Dogs) on Kaggle
+15. Natural Language Processing: Pretraining
+keyboard_arrow_down
+16. Natural Language Processing: Applications
+keyboard_arrow_down
+17. Reinforcement Learning
+keyboard_arrow_down
+18. Gaussian Processes
+keyboard_arrow_down
+19. Hyperparameter Optimization
+keyboard_arrow_down
+20. Generative Adversarial Networks
+keyboard_arrow_down
+21. Recommender Systems
+keyboard_arrow_down
+22. Appendix: Mathematics for Deep Learning
+keyboard_arrow_down
+23. Appendix: Tools for Deep Learning
+keyboard_arrow_down
+References
+Dive into Deep Learning
+Preface
+Installation
+Notation
+1. Introduction
+2. Preliminaries
+keyboard_arrow_down
+3. Linear Neural Networks for Regression
+keyboard_arrow_down
+4. Linear Neural Networks for Classification
+keyboard_arrow_down
+5. Multilayer Perceptrons
+keyboard_arrow_down
+6. Builders’ Guide
+keyboard_arrow_down
+7. Convolutional Neural Networks
+keyboard_arrow_down
+8. Modern Convolutional Neural Networks
+keyboard_arrow_down
+9. Recurrent Neural Networks
+keyboard_arrow_down
+10. Modern Recurrent Neural Networks
+keyboard_arrow_down
+11. Attention Mechanisms and Transformers
+keyboard_arrow_down
+12. Optimization Algorithms
+keyboard_arrow_down
+13. Computational Performance
+keyboard_arrow_down
+14. Computer Vision
+keyboard_arrow_down
+14.1. Image Augmentation
+14.2. Fine-Tuning
+14.3. Object Detection and Bounding Boxes
+14.4. Anchor Boxes
+14.5. Multiscale Object Detection
+14.6. The Object Detection Dataset
+14.7. Single Shot Multibox Detection
+14.8. Region-based CNNs (R-CNNs)
+14.9. Semantic Segmentation and the Dataset
+14.10. Transposed Convolution
+14.11. Fully Convolutional Networks
+14.12. Neural Style Transfer
+14.13. Image Classification (CIFAR-10) on Kaggle
+14.14. Dog Breed Identification (ImageNet Dogs) on Kaggle
+15. Natural Language Processing: Pretraining
+keyboard_arrow_down
+16. Natural Language Processing: Applications
+keyboard_arrow_down
+17. Reinforcement Learning
+keyboard_arrow_down
+18. Gaussian Processes
+keyboard_arrow_down
+19. Hyperparameter Optimization
+keyboard_arrow_down
+20. Generative Adversarial Networks
+keyboard_arrow_down
+21. Recommender Systems
+keyboard_arrow_down
+22. Appendix: Mathematics for Deep Learning
+keyboard_arrow_down
+23. Appendix: Tools for Deep Learning
+keyboard_arrow_down
+References
+14.1. Image Augmentation
+ Colab [pytorch]Open the notebook in Colab
+ SageMaker Studio LabOpen the notebook in SageMaker Studio Lab
+In Section 8.1, we mentioned that large datasets are a prerequisite for the success of deep neural networks in various applications. Image augmentation generates similar but distinct training examples after a series of random changes to the training images, thereby expanding the size of the training set. Alternatively, image augmentation can be motivated by the fact that random tweaks of training examples allow models to rely less on certain attributes, thereby improving their generalization ability. For example, we can crop an image in different ways to make the object of interest appear in different positions, thereby reducing the dependence of a model on the position of the object. We can also adjust factors such as brightness and color to reduce a model’s sensitivity to color. It is probably true that image augmentation was indispensable for the success of AlexNet at that time. In this section we will discuss this widely used technique in computer vision.
+
+pytorch
+mxnet
+%matplotlib inline
+import torch
+import torchvision
+from torch import nn
+from d2l import torch as d2l
+Copy to clipboard
+14.1.1. Common Image Augmentation Methods
+In our investigation of common image augmentation methods, we will use the following 
+ image an example.
+
+pytorch
+mxnet
+d2l.set_figsize()
+img = d2l.Image.open('../img/cat1.jpg')
+d2l.plt.imshow(img);
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_12_0.svg
+Most image augmentation methods have a certain degree of randomness. To make it easier for us to observe the effect of image augmentation, next we define an auxiliary function apply. This function runs the image augmentation method aug multiple times on the input image img and shows all the results.
+
+pytorch
+mxnet
+def apply(img, aug, num_rows=2, num_cols=4, scale=1.5):
+    Y = [aug(img) for _ in range(num_rows * num_cols)]
+    d2l.show_images(Y, num_rows, num_cols, scale=scale)
+Copy to clipboard
+14.1.1.1. Flipping and Cropping
+pytorch
+mxnet
+Flipping the image left and right usually does not change the category of the object. This is one of the earliest and most widely used methods of image augmentation. Next, we use the transforms module to create the RandomHorizontalFlip instance, which flips an image left and right with a 50% chance.
+
+apply(img, torchvision.transforms.RandomHorizontalFlip())
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_31_0.svg
+Flipping up and down is not as common as flipping left and right. But at least for this example image, flipping up and down does not hinder recognition. Next, we create a RandomVerticalFlip instance to flip an image up and down with a 50% chance.
+
+apply(img, torchvision.transforms.RandomVerticalFlip())
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_33_0.svg
+In the example image we used, the cat is in the middle of the image, but this may not be the case in general. In Section 7.5, we explained that the pooling layer can reduce the sensitivity of a convolutional layer to the target position. In addition, we can also randomly crop the image to make objects appear in different positions in the image at different scales, which can also reduce the sensitivity of a model to the target position.
+
+In the code below, we randomly crop an area with an area of 
+ of the original area each time, and the ratio of width to height of this area is randomly selected from 
+. Then, the width and height of the region are both scaled to 200 pixels. Unless otherwise specified, the random number between 
+ and 
+ in this section refers to a continuous value obtained by random and uniform sampling from the interval 
+.
+
+pytorch
+mxnet
+shape_aug = torchvision.transforms.RandomResizedCrop(
+    (200, 200), scale=(0.1, 1), ratio=(0.5, 2))
+apply(img, shape_aug)
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_45_0.svg
+14.1.1.2. Changing Colors
+Another augmentation method is changing colors. We can change four aspects of the image color: brightness, contrast, saturation, and hue. In the example below, we randomly change the brightness of the image to a value between 50% (
+) and 150% (
+) of the original image.
+
+pytorch
+mxnet
+apply(img, torchvision.transforms.ColorJitter(
+    brightness=0.5, contrast=0, saturation=0, hue=0))
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_54_0.svg
+Similarly, we can randomly change the hue of the image.
+
+pytorch
+mxnet
+apply(img, torchvision.transforms.ColorJitter(
+    brightness=0, contrast=0, saturation=0, hue=0.5))
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_63_0.svg
+We can also create a RandomColorJitter instance and set how to randomly change the brightness, contrast, saturation, and hue of the image at the same time.
+
+pytorch
+mxnet
+color_aug = torchvision.transforms.ColorJitter(
+    brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
+apply(img, color_aug)
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_72_0.svg
+14.1.1.3. Combining Multiple Image Augmentation Methods
+In practice, we will combine multiple image augmentation methods. For example, we can combine the different image augmentation methods defined above and apply them to each image via a Compose instance.
+
+pytorch
+mxnet
+augs = torchvision.transforms.Compose([
+    torchvision.transforms.RandomHorizontalFlip(), color_aug, shape_aug])
+apply(img, augs)
+Copy to clipboard
+../_images/output_image-augmentation_7d0887_81_0.svg
+14.1.2. Training with Image Augmentation
+Let’s train a model with image augmentation. Here we use the CIFAR-10 dataset instead of the Fashion-MNIST dataset that we used before. This is because the position and size of the objects in the Fashion-MNIST dataset have been normalized, while the color and size of the objects in the CIFAR-10 dataset have more significant differences. The first 32 training images in the CIFAR-10 dataset are shown below.
+
+pytorch
+mxnet
+all_images = torchvision.datasets.CIFAR10(train=True, root="../data",
+                                          download=True)
+d2l.show_images([all_images[i][0] for i in range(32)], 4, 8, scale=0.8);
+Copy to clipboard
+Downloading https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz to ../data/cifar-10-python.tar.gz
+100%|██████████| 170498071/170498071 [00:04<00:00, 37716809.52it/s]
+Extracting ../data/cifar-10-python.tar.gz to ../data
+../_images/output_image-augmentation_7d0887_90_1.svg
+In order to obtain definitive results during prediction, we usually only apply image augmentation to training examples, and do not use image augmentation with random operations during prediction. Here we only use the simplest random left-right flipping method. In addition, we use a ToTensor instance to convert a minibatch of images into the format required by the deep learning framework, i.e., 32-bit floating point numbers between 0 and 1 with the shape of (batch size, number of channels, height, width).
+
+pytorch
+mxnet
+train_augs = torchvision.transforms.Compose([
+     torchvision.transforms.RandomHorizontalFlip(),
+     torchvision.transforms.ToTensor()])
+
+test_augs = torchvision.transforms.Compose([
+     torchvision.transforms.ToTensor()])
+Copy to clipboard
+Next, we define an auxiliary function to facilitate reading the image and applying image augmentation. The transform argument provided by PyTorch’s dataset applies augmentation to transform the images. For a detailed introduction to DataLoader, please refer to Section 4.2.
+
+def load_cifar10(is_train, augs, batch_size):
+    dataset = torchvision.datasets.CIFAR10(root="../data", train=is_train,
+                                           transform=augs, download=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size,
+                    shuffle=is_train, num_workers=d2l.get_dataloader_workers())
+    return dataloader
+Copy to clipboard
+14.1.2.1. Multi-GPU Training
+We train the ResNet-18 model from Section 8.6 on the CIFAR-10 dataset. Recall the introduction to multi-GPU training in Section 13.6. In the following, we define a function to train and evaluate the model using multiple GPUs.
+
+pytorch
+mxnet
+#@save
+def train_batch_ch13(net, X, y, loss, trainer, devices):
+    """Train for a minibatch with multiple GPUs (defined in Chapter 13)."""
+    if isinstance(X, list):
+        # Required for BERT fine-tuning (to be covered later)
+        X = [x.to(devices[0]) for x in X]
+    else:
+        X = X.to(devices[0])
+    y = y.to(devices[0])
+    net.train()
+    trainer.zero_grad()
+    pred = net(X)
+    l = loss(pred, y)
+    l.sum().backward()
+    trainer.step()
+    train_loss_sum = l.sum()
+    train_acc_sum = d2l.accuracy(pred, y)
+    return train_loss_sum, train_acc_sum
+
+#@save
+def train_ch13(net, train_iter, test_iter, loss, trainer, num_epochs,
+               devices=d2l.try_all_gpus()):
+    """Train a model with multiple GPUs (defined in Chapter 13)."""
+    timer, num_batches = d2l.Timer(), len(train_iter)
+    animator = d2l.Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0, 1],
+                            legend=['train loss', 'train acc', 'test acc'])
+    net = nn.DataParallel(net, device_ids=devices).to(devices[0])
+    for epoch in range(num_epochs):
+        # Sum of training loss, sum of training accuracy, no. of examples,
+        # no. of predictions
+        metric = d2l.Accumulator(4)
+        for i, (features, labels) in enumerate(train_iter):
+            timer.start()
+            l, acc = train_batch_ch13(
+                net, features, labels, loss, trainer, devices)
+            metric.add(l, acc, labels.shape[0], labels.numel())
+            timer.stop()
+            if (i + 1) % (num_batches // 5) == 0 or i == num_batches - 1:
+                animator.add(epoch + (i + 1) / num_batches,
+                             (metric[0] / metric[2], metric[1] / metric[3],
+                              None))
+        test_acc = d2l.evaluate_accuracy_gpu(net, test_iter)
+        animator.add(epoch + 1, (None, None, test_acc))
+    print(f'loss {metric[0] / metric[2]:.3f}, train acc '
+          f'{metric[1] / metric[3]:.3f}, test acc {test_acc:.3f}')
+    print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec on '
+          f'{str(devices)}')
+Copy to clipboard
+Now we can define the train_with_data_aug function to train the model with image augmentation. This function gets all available GPUs, uses Adam as the optimization algorithm, applies image augmentation to the training dataset, and finally calls the train_ch13 function just defined to train and evaluate the model.
+
+pytorch
+mxnet
+batch_size, devices, net = 256, d2l.try_all_gpus(), d2l.resnet18(10, 3)
+net.apply(d2l.init_cnn)
+
+def train_with_data_aug(train_augs, test_augs, net, lr=0.001):
+    train_iter = load_cifar10(True, train_augs, batch_size)
+    test_iter = load_cifar10(False, test_augs, batch_size)
+    loss = nn.CrossEntropyLoss(reduction="none")
+    trainer = torch.optim.Adam(net.parameters(), lr=lr)
+    net(next(iter(train_iter))[0])
+    train_ch13(net, train_iter, test_iter, loss, trainer, 10, devices)
+Copy to clipboard
+Let’s train the model using image augmentation based on random left-right flipping.
+
+pytorch
+mxnet
+train_with_data_aug(train_augs, test_augs, net)
+Copy to clipboard
+loss 0.215, train acc 0.925, test acc 0.810
+4728.8 examples/sec on [device(type='cuda', index=0), device(type='cuda', index=1)]
+../_images/output_image-augmentation_7d0887_130_1.svg
+14.1.3. Summary
+Image augmentation generates random images based on existing training data to improve the generalization ability of models.
+
+In order to obtain definitive results during prediction, we usually only apply image augmentation to training examples, and do not use image augmentation with random operations during prediction.
+
+Deep learning frameworks provide many different image augmentation methods, which can be applied simultaneously.
+
+14.1.4. Exercises
+Train the model without using image augmentation: train_with_data_aug(test_augs, test_augs). Compare training and testing accuracy when using and not using image augmentation. Can this comparative experiment support the argument that image augmentation can mitigate overfitting? Why?
+
+Combine multiple different image augmentation methods in model training on the CIFAR-10 dataset. Does it improve test accuracy?
+
+Refer to the online documentation of the deep learning framework. What other image augmentation methods does it also provide?
+
+pytorch
+mxnet
+
+
+Next
+14.2. Fine-Tuning
